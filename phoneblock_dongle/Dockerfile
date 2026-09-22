@@ -1,4 +1,3 @@
-ARG BUILD_FROM
 ARG PHONEBLOCK_REF=linux-core-extraction
 
 FROM alpine:3.20 AS builder
@@ -10,7 +9,7 @@ RUN git clone --depth 1 --branch "${PHONEBLOCK_REF}" \
 WORKDIR /src/phoneblock-dongle/firmware/test
 RUN make phoneblock_linux
 
-FROM ${BUILD_FROM}
+FROM ghcr.io/home-assistant/base:latest
 ARG BUILD_VERSION
 ARG BUILD_ARCH
 
