@@ -16,10 +16,20 @@ mkdir -p "${DATA_DIR}"
     printf 'phoneblock_base_url=%s\n' "$(bashio::config 'phoneblock_base_url')"
     printf 'phoneblock_token=%s\n' "$(bashio::config 'phoneblock_token')"
     printf 'announcement_path=%s\n' "$(bashio::config 'announcement_path')"
+    printf 'fritzbox_host=%s\n' "$(bashio::config 'fritzbox_host')"
+    printf 'fritzbox_port=%s\n' "$(bashio::config 'fritzbox_port')"
+    printf 'fritzbox_admin_user=%s\n' "$(bashio::config 'fritzbox_admin_user')"
+    printf 'fritzbox_admin_pass=%s\n' "$(bashio::config 'fritzbox_admin_pass')"
+    printf 'fritzbox_phone_name=%s\n' "$(bashio::config 'fritzbox_phone_name')"
 } > "${CONFIG_FILE}"
 chmod 0600 "${CONFIG_FILE}"
 
 bashio::log.info "Starting PhoneBlock Dongle SIP service"
+if [ -z "$(bashio::config 'sip_user')" ] && [ -n "$(bashio::config 'fritzbox_admin_pass')" ]; then
+    bashio::log.info "Provisioning SIP credentials through Fritz!Box TR-064"
+    /usr/bin/phoneblock-dongle --config "${CONFIG_FILE}" --provision-sip
+fi
+
 exec /usr/bin/phoneblock-dongle \
     --service \
     --web 8080 \

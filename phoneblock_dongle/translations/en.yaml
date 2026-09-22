@@ -1,0 +1,46 @@
+configuration:
+  sip_host:
+    name: SIP host
+    description: SIP registrar hostname. The app will provision this automatically on a Fritz!Box when admin credentials are supplied.
+  sip_port:
+    name: SIP port
+    description: SIP registrar UDP port.
+  sip_user:
+    name: SIP username
+    description: Generated SIP username. Leave empty when using Fritz!Box provisioning.
+  sip_pass:
+    name: SIP password
+    description: Generated SIP password. Leave empty when using Fritz!Box provisioning.
+  sip_expires:
+    name: SIP registration lifetime
+    description: Requested SIP registration lifetime in seconds.
+  sip_local_port:
+    name: Local SIP port
+    description: UDP port used for SIP signaling.
+  rtp_port:
+    name: RTP audio port
+    description: UDP port advertised for announcement audio.
+  phoneblock_base_url:
+    name: PhoneBlock base URL
+    description: PhoneBlock server URL without the API suffix.
+  phoneblock_token:
+    name: PhoneBlock token
+    description: Bearer token used for caller classification.
+  announcement_path:
+    name: Announcement path
+    description: Path inside the app data directory to an 8 kHz mono G.711 A-law file.
+  fritzbox_host:
+    name: Fritz!Box host
+    description: Fritz!Box hostname or IP address used for TR-064 provisioning.
+  fritzbox_port:
+    name: Fritz!Box TR-064 port
+    description: TR-064 HTTP port, normally 49000.
+  fritzbox_admin_user:
+    name: Fritz!Box admin username
+    description: Fritz!Box administrator account used to create the SIP phone.
+  fritzbox_admin_pass:
+    name: Fritz!Box admin password
+    description: Fritz!Box administrator password. Leave SIP username and password empty when provisioning.
+  fritzbox_phone_name:
+    name: Fritz!Box phone name
+    description: Display name assigned to the provisioned IP phone.

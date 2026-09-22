@@ -1,5 +1,5 @@
 name: PhoneBlock Dongle
-version: "0.1.2"
+version: "0.1.3"
 slug: phoneblock_dongle
 description: Native Linux PhoneBlock SIP spam-call blocker
 url: https://github.com/YaannnTech/phoneblock/tree/linux-core-extraction/phoneblock-dongle
@@ -22,6 +22,11 @@ options:
   phoneblock_base_url: https://phoneblock.net/phoneblock
   phoneblock_token: ""
   announcement_path: /data/announcement.alaw
+  fritzbox_host: fritz.box
+  fritzbox_port: 49000
+  fritzbox_admin_user: ""
+  fritzbox_admin_pass: ""
+  fritzbox_phone_name: PhoneBlock
 schema:
   sip_host: str
   sip_port: port
@@ -33,6 +38,11 @@ schema:
   phoneblock_base_url: url
   phoneblock_token: password
   announcement_path: str
+  fritzbox_host: str
+  fritzbox_port: port
+  fritzbox_admin_user: str
+  fritzbox_admin_pass: password
+  fritzbox_phone_name: str
 map:
   - type: data
     read_only: false
