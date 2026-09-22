@@ -20,7 +20,7 @@ LABEL \
     org.opencontainers.image.title="PhoneBlock Dongle" \
     org.opencontainers.image.source="https://github.com/YaannnTech/phoneblock"
 
-RUN apk add --no-cache ca-certificates cjson curl-libs openssl
+RUN apk add --no-cache ca-certificates cjson libcurl openssl
 COPY --from=builder /src/phoneblock-dongle/firmware/test/phoneblock_linux /usr/bin/phoneblock-dongle
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh /usr/bin/phoneblock-dongle

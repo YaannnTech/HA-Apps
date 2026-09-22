@@ -1,17 +1,16 @@
 name: PhoneBlock Dongle
-version: "0.1.0"
+version: "0.1.2"
 slug: phoneblock_dongle
 description: Native Linux PhoneBlock SIP spam-call blocker
 url: https://github.com/YaannnTech/phoneblock/tree/linux-core-extraction/phoneblock-dongle
 arch:
   - amd64
   - aarch64
-  - armv7
 startup: services
 boot: auto
 init: false
 host_network: true
-webui: http://[HOST]:8080/
+webui: http://[HOST]:[PORT:8080]/
 options:
   sip_host: fritz.box
   sip_port: 5060
