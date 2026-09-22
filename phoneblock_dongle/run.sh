@@ -10,6 +10,8 @@ mkdir -p "${DATA_DIR}"
     printf 'sip_port=%s\n' "$(bashio::config 'sip_port')"
     printf 'sip_user=%s\n' "$(bashio::config 'sip_user')"
     printf 'sip_pass=%s\n' "$(bashio::config 'sip_pass')"
+    printf 'sip_authuser=%s\n' "$(bashio::config 'sip_authuser')"
+    printf 'sip_realm=%s\n' "$(bashio::config 'sip_realm')"
     printf 'sip_expires=%s\n' "$(bashio::config 'sip_expires')"
     printf 'sip_local_port=%s\n' "$(bashio::config 'sip_local_port')"
     printf 'rtp_port=%s\n' "$(bashio::config 'rtp_port')"
@@ -24,8 +26,18 @@ mkdir -p "${DATA_DIR}"
 } > "${CONFIG_FILE}"
 chmod 0600 "${CONFIG_FILE}"
 
+sip_host="$(bashio::config 'sip_host')"
+sip_port="$(bashio::config 'sip_port')"
+sip_user="$(bashio::config 'sip_user')"
+sip_pass="$(bashio::config 'sip_pass')"
+sip_authuser="$(bashio::config 'sip_authuser')"
+sip_realm="$(bashio::config 'sip_realm')"
+sip_pass_len="${#sip_pass}"
+
 bashio::log.info "Starting PhoneBlock Dongle SIP service"
-if [ -z "$(bashio::config 'sip_user')" ] && [ -n "$(bashio::config 'fritzbox_admin_pass')" ]; then
+bashio::log.info "SIP config: host=${sip_host} port=${sip_port} user=${sip_user} authuser=${sip_authuser:-<fallback>} realm=${sip_realm:-<challenge>} pass_len=${sip_pass_len}"
+
+if [ -z "${sip_user}" ] && [ -n "$(bashio::config 'fritzbox_admin_pass')" ]; then
     bashio::log.info "Provisioning SIP credentials through Fritz!Box TR-064"
     /usr/bin/phoneblock-dongle --config "${CONFIG_FILE}" --provision-sip
 fi
