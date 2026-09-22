@@ -1,5 +1,5 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
-ARG PHONEBLOCK_CACHE_BUST=linux-dashboard-cb04409-20260922
+ARG PHONEBLOCK_CACHE_BUST=linux-dashboard-status-20260922
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF
