@@ -1,10 +1,14 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
+ARG PHONEBLOCK_CACHE_BUST=tr064-parser-20260922
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF
-RUN apk add --no-cache build-base cjson-dev curl-dev git openssl-dev pkgconf
+ARG PHONEBLOCK_CACHE_BUST
+RUN echo "Building PhoneBlock source cache ${PHONEBLOCK_CACHE_BUST}" \
+    && apk add --no-cache build-base cjson-dev curl-dev git openssl-dev pkgconf
 WORKDIR /src
-RUN git clone --depth 1 --branch "${PHONEBLOCK_REF}" \
+RUN echo "Cloning PhoneBlock source cache ${PHONEBLOCK_CACHE_BUST}" \
+    && git clone --depth 1 --branch "${PHONEBLOCK_REF}" \
     https://github.com/YaannnTech/phoneblock.git .
 WORKDIR /src/phoneblock-dongle/firmware/test
 RUN make phoneblock_linux
