@@ -1,15 +1,14 @@
 # PhoneBlock Dongle for Home Assistant
 
 This app runs the native Linux PhoneBlock SIP spam-call blocker inside Home
-Assistant. It is intended to run on the same LAN or VPN path as the Fritz!Box;
-Tailscale connectivity should be tested from the Home Assistant host itself.
-
+Assistant. It is intended to run on the same LAN or VPN path as the Fritz!Box.
 ## Setup
 
 1. Install **PhoneBlock Dongle** from the `HA-Apps` repository.
 2. Configure the Fritz!Box SIP extension and PhoneBlock token in the app options.
-3. Install an 8 kHz mono raw G.711 A-law announcement at:
-   `/config/phoneblock_dongle/announcement.alaw`.
+3. Place an 8 kHz mono raw G.711 A-law announcement in the app's persistent
+   data directory so it is visible inside the container as
+   `/data/announcement.alaw`, or change the `announcement_path` option.
 4. Start the app and open its status page.
 
 The app uses host networking so SIP and RTP can use their configured UDP ports.
