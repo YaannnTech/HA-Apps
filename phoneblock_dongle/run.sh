@@ -5,6 +5,8 @@ DATA_DIR=/data
 CONFIG_FILE=${DATA_DIR}/dongle.conf
 mkdir -p "${DATA_DIR}"
 
+if [ ! -f "${CONFIG_FILE}" ]; then
+    bashio::log.info "Creating initial configuration from add-on options"
 {
     printf 'sip_host=%s\n' "$(bashio::config 'sip_host')"
     printf 'sip_port=%s\n' "$(bashio::config 'sip_port')"
@@ -23,11 +25,14 @@ mkdir -p "${DATA_DIR}"
     printf 'fritzbox_phone_name=%s\n' "$(bashio::config 'fritzbox_phone_name')"
 } > "${CONFIG_FILE}"
 chmod 0600 "${CONFIG_FILE}"
+else
+    bashio::log.info "Using persistent configuration from ${CONFIG_FILE}"
+fi
 
-sip_host="$(bashio::config 'sip_host')"
-sip_port="$(bashio::config 'sip_port')"
-sip_user="$(bashio::config 'sip_user')"
-sip_pass="$(bashio::config 'sip_pass')"
+sip_host="$(sed -n 's/^sip_host=//p' "${CONFIG_FILE}")"
+sip_port="$(sed -n 's/^sip_port=//p' "${CONFIG_FILE}")"
+sip_user="$(sed -n 's/^sip_user=//p' "${CONFIG_FILE}")"
+sip_pass="$(sed -n 's/^sip_pass=//p' "${CONFIG_FILE}")"
 sip_pass_len="${#sip_pass}"
 
 bashio::log.info "Starting PhoneBlock Dongle SIP service"
