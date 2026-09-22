@@ -1,0 +1,29 @@
+ARG BUILD_FROM
+ARG PHONEBLOCK_REF=linux-core-extraction
+
+FROM alpine:3.20 AS builder
+ARG PHONEBLOCK_REF
+RUN apk add --no-cache build-base cjson-dev curl-dev git openssl-dev pkgconf
+WORKDIR /src
+RUN git clone --depth 1 --branch "${PHONEBLOCK_REF}" \
+    https://github.com/YaannnTech/phoneblock.git .
+WORKDIR /src/phoneblock-dongle/firmware/test
+RUN make phoneblock_linux
+
+FROM ${BUILD_FROM}
+ARG BUILD_VERSION
+ARG BUILD_ARCH
+
+LABEL \
+    io.hass.version="${BUILD_VERSION}" \
+    io.hass.type="app" \
+    io.hass.arch="${BUILD_ARCH}" \
+    org.opencontainers.image.title="PhoneBlock Dongle" \
+    org.opencontainers.image.source="https://github.com/YaannnTech/phoneblock"
+
+RUN apk add --no-cache ca-certificates cjson curl-libs openssl
+COPY --from=builder /src/phoneblock-dongle/firmware/test/phoneblock_linux /usr/bin/phoneblock-dongle
+COPY run.sh /run.sh
+RUN chmod a+x /run.sh /usr/bin/phoneblock-dongle
+
+CMD ["/run.sh"]

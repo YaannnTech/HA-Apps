@@ -5,6 +5,7 @@ This repository contains Home Assistant apps for local Kokoro text-to-speech and
 It currently includes two apps:
 * [Kokoro-FastAPI (CPU)](https://github.com/YaannnTech/HA-Apps/tree/main/kokoro_fastapi)
 * [Tuya IPC Bridge](https://github.com/YaannnTech/HA-Apps/tree/main/tuya_ipc_bridge).
+* [PhoneBlock Dongle](https://github.com/YaannnTech/HA-Apps/tree/main/phoneblock_dongle)
 
 
 ## Usage
