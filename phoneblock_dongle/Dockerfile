@@ -1,5 +1,5 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
-ARG PHONEBLOCK_CACHE_BUST=sip-register-identity-20260922
+ARG PHONEBLOCK_CACHE_BUST=web-ui-and-config-20260922
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF

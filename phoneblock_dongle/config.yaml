@@ -1,5 +1,5 @@
 name: PhoneBlock Dongle
-version: "0.1.4"
+version: "0.1.5"
 slug: phoneblock_dongle
 description: Native Linux PhoneBlock SIP spam-call blocker
 url: https://github.com/YaannnTech/phoneblock/tree/linux-core-extraction/phoneblock-dongle
@@ -16,8 +16,6 @@ options:
   sip_port: 5060
   sip_user: ""
   sip_pass: ""
-  sip_authuser: ""
-  sip_realm: ""
   sip_expires: 3600
   sip_local_port: 15060
   rtp_port: 16000
@@ -34,8 +32,6 @@ schema:
   sip_port: port
   sip_user: str
   sip_pass: password
-  sip_authuser: str
-  sip_realm: str
   sip_expires: int(60,86400)
   sip_local_port: port
   rtp_port: port
