@@ -1,5 +1,5 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
-ARG PHONEBLOCK_CACHE_BUST=sip-transport-connect-fix-20260923
+ARG PHONEBLOCK_CACHE_BUST=sip-recv-diagnostics-20260923
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF
