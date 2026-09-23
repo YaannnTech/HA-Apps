@@ -1,5 +1,5 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
-ARG PHONEBLOCK_CACHE_BUST=classification-error-failsafe-20260923
+ARG PHONEBLOCK_CACHE_BUST=token-fingerprint-log-20260923
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF
