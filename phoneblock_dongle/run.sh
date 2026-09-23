@@ -11,10 +11,13 @@ else
     bashio::log.info "No configuration yet; configure the dongle in the web UI"
 fi
 
-sip_host="$(sed -n 's/^sip_host=//p' "${CONFIG_FILE}" 2>/dev/null)"
-sip_port="$(sed -n 's/^sip_port=//p' "${CONFIG_FILE}" 2>/dev/null)"
-sip_user="$(sed -n 's/^sip_user=//p' "${CONFIG_FILE}" 2>/dev/null)"
-sip_pass="$(sed -n 's/^sip_pass=//p' "${CONFIG_FILE}" 2>/dev/null)"
+# "|| true" is required: under set -e, a missing CONFIG_FILE makes sed exit
+# non-zero and that status propagates through the assignment, killing the
+# script right here (2>/dev/null only silences sed's stderr, not its exit code).
+sip_host="$(sed -n 's/^sip_host=//p' "${CONFIG_FILE}" 2>/dev/null || true)"
+sip_port="$(sed -n 's/^sip_port=//p' "${CONFIG_FILE}" 2>/dev/null || true)"
+sip_user="$(sed -n 's/^sip_user=//p' "${CONFIG_FILE}" 2>/dev/null || true)"
+sip_pass="$(sed -n 's/^sip_pass=//p' "${CONFIG_FILE}" 2>/dev/null || true)"
 sip_pass_len="${#sip_pass}"
 
 bashio::log.info "Starting PhoneBlock Dongle SIP service"
