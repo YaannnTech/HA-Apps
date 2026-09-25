@@ -31,6 +31,20 @@ sip_pass_len="${#sip_pass}"
 bashio::log.info "Starting PhoneBlock Dongle SIP service"
 bashio::log.info "SIP config: host=${sip_host} port=${sip_port} user=${sip_user} pass_len=${sip_pass_len}"
 
+if ! ingress_port="$(curl -fsS \
+    -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+    http://supervisor/addons/self/info | jq -er '.data.ingress_port')"; then
+    bashio::log.error "Could not retrieve the assigned Home Assistant ingress port"
+    exit 1
+fi
+if ! [[ "${ingress_port}" =~ ^[1-9][0-9]{0,4}$ ]] || (( ingress_port > 65535 )); then
+    bashio::log.error "Supervisor returned an invalid ingress port: ${ingress_port}"
+    exit 1
+fi
+
+sed "s/@INGRESS_PORT@/${ingress_port}/g" \
+    /etc/nginx/phoneblock.conf.template \
+    > /etc/nginx/http.d/default.conf
 nginx
 
 exec /usr/bin/phoneblock-dongle \

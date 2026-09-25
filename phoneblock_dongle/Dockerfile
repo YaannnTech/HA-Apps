@@ -24,11 +24,11 @@ LABEL \
     org.opencontainers.image.title="PhoneBlock Dongle" \
     org.opencontainers.image.source="https://github.com/YaannnTech/phoneblock"
 
-RUN apk add --no-cache ca-certificates cjson libcurl nginx openssl
+RUN apk add --no-cache ca-certificates cjson curl jq libcurl nginx openssl
 COPY --from=builder /src/phoneblock-dongle/firmware/test/phoneblock_linux /usr/bin/phoneblock-dongle
 COPY --from=builder /src/phoneblock-dongle/firmware/i18n/audio /usr/share/phoneblock/announcements
 COPY run.sh /run.sh
-COPY nginx.conf /etc/nginx/http.d/default.conf
+COPY nginx.conf /etc/nginx/phoneblock.conf.template
 RUN chmod a+x /run.sh /usr/bin/phoneblock-dongle
 
 CMD ["/run.sh"]
