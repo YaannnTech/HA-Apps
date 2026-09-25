@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Ingress web UI: lets a user add a Tuya account via QR-code login in the browser."""
+import argparse
 import html
 import io
 import json
@@ -346,5 +347,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = ThreadingHTTPServer(("0.0.0.0", 8099), Handler)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int, required=True)
+    args = parser.parse_args()
+    server = ThreadingHTTPServer(("0.0.0.0", args.port), Handler)
     server.serve_forever()

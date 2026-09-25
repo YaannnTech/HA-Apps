@@ -11,16 +11,29 @@ RTSP_PORT=$(bashio::config 'rtsp_port')
 # from a custom repository (e.g. "45df7312_tuya_ipc_bridge"), so the panel path can't just
 # be hardcoded from config.yaml - fetch the real slug Supervisor assigned instead. Confirmed
 # working panel path is "/<slug>" directly (not "/hassio/ingress/<slug>").
-ADDON_SLUG=$(curl -sf -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
-    http://supervisor/addons/self/info | jq -r '.data.slug // "tuya_ipc_bridge"')
+if ! ADDON_INFO=$(curl -fsS \
+    -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+    http://supervisor/addons/self/info); then
+    bashio::log.error "Could not retrieve add-on information from the Supervisor"
+    exit 1
+fi
+ADDON_SLUG=$(jq -r '.data.slug // "tuya_ipc_bridge"' <<< "${ADDON_INFO}")
+if ! INGRESS_PORT=$(jq -er '.data.ingress_port' <<< "${ADDON_INFO}"); then
+    bashio::log.error "Could not retrieve the assigned Home Assistant ingress port"
+    exit 1
+fi
+if ! [[ "${INGRESS_PORT}" =~ ^[1-9][0-9]{0,4}$ ]] || (( INGRESS_PORT > 65535 )); then
+    bashio::log.error "Supervisor returned an invalid ingress port: ${INGRESS_PORT}"
+    exit 1
+fi
 WEB_UI_LINK="/app/${ADDON_SLUG}"
 
 bashio::log.info "Refreshing camera discovery..."
 tuya-ipc-terminal cameras refresh || bashio::log.warning "Camera discovery failed, continuing anyway"
 tuya-ipc-terminal cameras list || true
 
-bashio::log.info "Starting ingress web UI (QR login) on port 8099..."
-python3 /usr/bin/qr_server.py &
+bashio::log.info "Starting ingress web UI (QR login) on port ${INGRESS_PORT}..."
+python3 /usr/bin/qr_server.py --port "${INGRESS_PORT}" &
 
 # Calls the HA persistent_notification service through the Supervisor's Core API proxy
 # (requires homeassistant_api: true in config.yaml, which injects SUPERVISOR_TOKEN).
