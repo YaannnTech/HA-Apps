@@ -15,6 +15,9 @@ fi
 if ! grep -q '^announcement_path=' "${CONFIG_FILE}" 2>/dev/null; then
     printf '\nannouncement_path=/data/announcement.alaw\n' >> "${CONFIG_FILE}"
 fi
+if ! grep -q '^announcement_custom_path=' "${CONFIG_FILE}" 2>/dev/null; then
+    printf 'announcement_custom_path=/data/announcement.alaw\n' >> "${CONFIG_FILE}"
+fi
 
 # "|| true" is required: under set -e, a missing CONFIG_FILE makes sed exit
 # non-zero and that status propagates through the assignment, killing the

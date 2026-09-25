@@ -1,5 +1,5 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
-ARG PHONEBLOCK_CACHE_BUST=announcement-upload-20260925
+ARG PHONEBLOCK_CACHE_BUST=announcement-presets-20260925
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF
@@ -26,6 +26,7 @@ LABEL \
 
 RUN apk add --no-cache ca-certificates cjson libcurl openssl
 COPY --from=builder /src/phoneblock-dongle/firmware/test/phoneblock_linux /usr/bin/phoneblock-dongle
+COPY --from=builder /src/phoneblock-dongle/firmware/i18n/audio /usr/share/phoneblock/announcements
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh /usr/bin/phoneblock-dongle
 
