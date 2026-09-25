@@ -1,5 +1,5 @@
-name: PhoneBlock Dongle
-version: "0.1.25"
+name: PhoneBlock
+version: "0.1.26"
 slug: phoneblock_dongle
 description: Run the "Phoneblock Dongle" as a Home Assistant App instead of a physical ESP32 Dongle
 url: https://github.com/YaannnTech/phoneblock/tree/linux-core-extraction/phoneblock-dongle
@@ -10,11 +10,13 @@ startup: services
 boot: auto
 init: false
 host_network: true
-webui: http://[HOST]:[PORT:8080]/
 options: {}
 schema: {}
 map:
   - type: data
     read_only: false
-watchdog: http://[HOST]:8080/health
+watchdog: http://[HOST]:8099/health
+ingress: true
+ingress_port: 8099
 panel_icon: mdi:phone-alert
+panel_title: PhoneBlock

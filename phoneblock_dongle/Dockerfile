@@ -1,5 +1,5 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
-ARG PHONEBLOCK_CACHE_BUST=announcement-selection-persistence-20260925
+ARG PHONEBLOCK_CACHE_BUST=ingress-sidebar-20260925
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF
@@ -24,10 +24,11 @@ LABEL \
     org.opencontainers.image.title="PhoneBlock Dongle" \
     org.opencontainers.image.source="https://github.com/YaannnTech/phoneblock"
 
-RUN apk add --no-cache ca-certificates cjson libcurl openssl
+RUN apk add --no-cache ca-certificates cjson libcurl nginx openssl
 COPY --from=builder /src/phoneblock-dongle/firmware/test/phoneblock_linux /usr/bin/phoneblock-dongle
 COPY --from=builder /src/phoneblock-dongle/firmware/i18n/audio /usr/share/phoneblock/announcements
 COPY run.sh /run.sh
+COPY nginx.conf /etc/nginx/http.d/default.conf
 RUN chmod a+x /run.sh /usr/bin/phoneblock-dongle
 
 CMD ["/run.sh"]

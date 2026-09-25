@@ -31,8 +31,10 @@ sip_pass_len="${#sip_pass}"
 bashio::log.info "Starting PhoneBlock Dongle SIP service"
 bashio::log.info "SIP config: host=${sip_host} port=${sip_port} user=${sip_user} pass_len=${sip_pass_len}"
 
+nginx
+
 exec /usr/bin/phoneblock-dongle \
     --service \
     --web 8080 \
-    --web-bind 0.0.0.0 \
+    --web-bind 127.0.0.1 \
     --config "${CONFIG_FILE}"
