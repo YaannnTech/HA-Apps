@@ -9,6 +9,11 @@ if [ -f "${CONFIG_FILE}" ]; then
     bashio::log.info "Using persistent configuration from ${CONFIG_FILE}"
 else
     bashio::log.info "No configuration yet; configure the dongle in the web UI"
+    printf 'announcement_path=/data/announcement.alaw\n' > "${CONFIG_FILE}"
+fi
+
+if ! grep -q '^announcement_path=' "${CONFIG_FILE}" 2>/dev/null; then
+    printf '\nannouncement_path=/data/announcement.alaw\n' >> "${CONFIG_FILE}"
 fi
 
 # "|| true" is required: under set -e, a missing CONFIG_FILE makes sed exit
