@@ -1,5 +1,5 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
-ARG PHONEBLOCK_CACHE_BUST=bearer-token-truncation-fix-20260923
+ARG PHONEBLOCK_CACHE_BUST=timezone-logging-20260925
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF

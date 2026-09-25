@@ -1,5 +1,5 @@
 name: PhoneBlock Dongle
-version: "0.1.19"
+version: "0.1.20"
 slug: phoneblock_dongle
 description: Run the "Phoneblock Dongle" as a Home Assistant App instead of a physical ESP32 Dongle
 url: https://github.com/YaannnTech/phoneblock/tree/linux-core-extraction/phoneblock-dongle
