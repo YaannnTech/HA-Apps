@@ -1,5 +1,5 @@
 ARG PHONEBLOCK_REF=linux-core-extraction
-ARG PHONEBLOCK_CACHE_BUST=timezone-logging-20260925
+ARG PHONEBLOCK_CACHE_BUST=sip-refresh-granted-expiry-20260925
 
 FROM alpine:3.20 AS builder
 ARG PHONEBLOCK_REF
