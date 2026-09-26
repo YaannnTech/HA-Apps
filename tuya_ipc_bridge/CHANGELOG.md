@@ -1,3 +1,11 @@
+# 0.9.2
+
+- Fix native RTSP playback with clients that change camera-path casing, including VLC.
+- Generate SDP for the requested HD or SD stream, advertise the matching codec, and align
+  HEVC RTP payloads with the advertised payload type.
+- Send UDP media to the RTSP client's address and keep RTSP requests responsive while the
+  Tuya/WebRTC stream starts.
+
 # 0.9.1
 
 - Use the Supervisor-assigned ingress port for the QR login Web UI to avoid conflicts with other host-network apps.

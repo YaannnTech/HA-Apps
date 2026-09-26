@@ -4,12 +4,15 @@ ARG BUILD_FROM
 # Build stage: compile tuya-ipc-terminal from upstream source
 FROM golang:1.23-alpine AS builder
 
-ARG TUYA_IPC_TERMINAL_REF=main
+ARG TUYA_IPC_TERMINAL_REF=fix/rtsp-stream-lockup
+ARG TUYA_IPC_TERMINAL_REPO=https://github.com/YaannnTech/tuya-ipc-terminal.git
 RUN apk add --no-cache git sed
 
 WORKDIR /src
-RUN git clone --depth 1 --branch "${TUYA_IPC_TERMINAL_REF}" \
-    https://github.com/seydx/tuya-ipc-terminal.git .
+RUN git init \
+    && git remote add origin "${TUYA_IPC_TERMINAL_REPO}" \
+    && git fetch --depth 1 origin "${TUYA_IPC_TERMINAL_REF}" \
+    && git checkout --detach FETCH_HEAD
 
 # Upstream only renders the QR login token as ASCII art; also print it as plain
 # text so the ingress web UI can render a real, scannable QR image in-browser.

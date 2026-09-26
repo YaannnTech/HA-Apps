@@ -1,5 +1,5 @@
 name: "Tuya IPC Bridge"
-version: "0.9.1"
+version: "0.9.2"
 slug: "tuya_ipc_bridge"
 description: "Bridge Tuya Smart Camera IPC streams to RTSP for use as Home Assistant generic/go2rtc cameras"
 url: "https://github.com/YaannnTech/HA-Apps/tree/main/tuya_ipc_bridge"
