@@ -5,6 +5,7 @@
   HEVC RTP payloads with the advertised payload type.
 - Send UDP media to the RTSP client's address and keep RTSP requests responsive while the
   Tuya/WebRTC stream starts.
+- Note: All these fixes were made in a personal fork of the upstream tuya-ipc-terminal project, and this HA app has now been switched over to use that fork instead of the original repository. A PR was made for the original author to integrate the fixes into their upstream repository (at which point this add-on would switch back to the official version).
 
 # 0.9.1
 
