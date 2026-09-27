@@ -1,0 +1,37 @@
+name: "Chhoto URL"
+version: "7.8.2.1"
+slug: chhoto_url
+description: Run Chhoto URL, a simple selfhosted URL shortener, as a Home Assistant app
+url: https://github.com/YaannnTech/HA-Apps/tree/main/chhoto_url
+arch:
+  - amd64
+  - aarch64
+  - armv7
+startup: services
+boot: auto
+init: false
+ports:
+  4567/tcp: 4567
+ports_description:
+  4567/tcp: Chhoto URL web interface and API
+webui: http://[HOST]:[PORT:4567]/
+ingress: true
+ingress_port: 4567
+panel_icon: mdi:link-variant
+hassio_api: true
+homeassistant_api: true
+options:
+  public_mode: false
+  enable_wal_mode: true
+  redirect_method: Permanent
+schema:
+  password: "password?"
+  site_url: "str?"
+  api_key: "password?"
+  public_mode: bool
+  enable_wal_mode: bool
+  redirect_method: "list(Permanent|Temporary)"
+map:
+  - type: data
+    read_only: false
+watchdog: tcp://[HOST]:[PORT:4567]

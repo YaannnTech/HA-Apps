@@ -1,0 +1,19 @@
+configuration:
+  password:
+    name: Admin Password (optional)
+    description: Password used to add, list, or delete short links. Leave blank to allow open access to everyone.
+  site_url:
+    name: Public Site URL (optional)
+    description: Base URL used for the short links, e.g. https://s.example.com. Defaults to Home Assistant's host plus this app's port, e.g. http://homeassistant.local:4567.
+  api_key:
+    name: API Key (optional)
+    description: Secure key required to use Chhoto URL's JSON API from scripts or the CLI.
+  public_mode:
+    name: Allow public link creation
+    description: Let anyone create short links without the admin password. Listing and deleting links still requires the password.
+  enable_wal_mode:
+    name: Enable WAL database mode
+    description: Recommended. Improves performance under load. Requires the database to live on a mounted directory, which the app already provides.
+  redirect_method:
+    name: Redirect Method
+    description: HTTP redirect used when a short link is resolved. "Permanent" (308) is recommended; "Temporary" (307) avoids browser caching of the redirect.
