@@ -16,10 +16,12 @@ Not all "Tuya" cameras work with the native Home Assistant Tuya integration, nor
 
 See the **Documentation** tab for full setup, usage, and troubleshooting instructions.
 
-## Usage
+## Installation & Usage
 
-1. If not already done in HA, add ``https://github.com/YaannnTech/HA-Apps`` to **Settings > Apps > App store > Repositories**.
-2. Find **Tuya IPC Bridge** in the store and click **Install**.
+1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**.
+2. Or simply press this button: <br>
+[![Add Repository](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FYaannnTech%2FHA-Apps)
+3. Install **Tuya IPC Bridge**.
 3. Start the app, **then** configure accounts through the included Web UI.
 
 ## Settings

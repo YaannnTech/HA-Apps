@@ -4,16 +4,16 @@ This Home Assistant app runs the [Kokoro-FastAPI](https://github.com/remsky/Koko
 
 It works well alongside the [Kokoro TTS HACS integration](https://github.com/beecho01/Kokoro-TTS).
 
-## Usage
+## Installation & Usage
 
-1. If not already done in HA, add ``https://github.com/YaannnTech/HA-Apps`` to **Settings > Apps > App store > Repositories**.
-2. Install **Kokoro-FastAPI (CPU)**.
-3. Start the app and wait for the model to finish loading.
-4. Add and configure the [Kokoro TTS HACS integration](https://github.com/beecho01/Kokoro-TTS).
+1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**.
+2. Or simply press this button: <br>
+[![Add Repository](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FYaannnTech%2FHA-Apps)
+3. Install **Kokoro-FastAPI**.
+4. Start the app and wait for the model to finish loading.
+5. Add and configure the [Kokoro TTS HACS integration](https://github.com/beecho01/Kokoro-TTS).
 
-Click **Open Web UI** (above), or open `http://HOME_ASSISTANT_IP:8880/web/` to play around with the Kokoro-FastAPI backend.
-
-The Kokoro web player is available from the app's **Open Web UI** link.
+Click **Open Web UI**, or open `http://HOME_ASSISTANT_IP:8880/web/` to play around with the Kokoro-FastAPI backend.
 
 ## Settings
 
