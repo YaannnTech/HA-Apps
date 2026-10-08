@@ -1,3 +1,8 @@
+# 7.8.3.1
+
+- Update Chhoto URL to upstream release 7.8.3, which fixes malformed public site URLs and missing URL protocols.
+- Keep the Home Assistant frontend fixes for clipboard handling and stale browser caches; the Ingress site-URL patch is no longer needed because upstream now uses the current origin.
+
 # 7.8.2.1
 
 - Initial public release, wrapping the official `sintan1729/chhoto-url:7.8.2-alpine` image as a Home Assistant app for `amd64`, `aarch64`, and `armv7`. The app version follows the upstream image version (mostly, with another digit appended for Home Assistant app versioning).

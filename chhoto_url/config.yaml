@@ -1,5 +1,5 @@
 name: "Chhoto URL"
-version: "7.8.2.1"
+version: "7.8.3.1"
 slug: chhoto_url
 description: Run Chhoto URL, a simple selfhosted URL shortener, as a Home Assistant app
 url: https://github.com/YaannnTech/HA-Apps/tree/main/chhoto_url

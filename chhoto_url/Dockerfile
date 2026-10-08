@@ -1,4 +1,4 @@
-FROM sintan1729/chhoto-url:7.8.2-alpine
+FROM sintan1729/chhoto-url:7.8.3-alpine
 
 ARG BUILD_VERSION
 ARG BUILD_ARCH
@@ -12,11 +12,6 @@ LABEL \
 
 # jq is used by run.sh to read Home Assistant's /data/options.json and the Supervisor API.
 RUN apk add --no-cache jq
-
-# Upstream falls back to location.host when site_url is unset, and new URL(host) throws
-# under Ingress (no port in host). Use location.origin; fail the build if the pattern moved.
-RUN sed -i 's/SITE_URL=window\.location\.host;/SITE_URL=window.location.origin;/' /app/frontend/base/static/script.js \
-	&& grep -q 'SITE_URL=window.location.origin;' /app/frontend/base/static/script.js
 
 # A failed clipboard copy (blocked in the Ingress iframe / over http) wipes CONFIG, crashing the table redraw.
 RUN sed -i 's/console\.log(e),clearCachedState(),showAlert(\(.\)Could not copy/console.log(e),showAlert(\1Could not copy/' /app/frontend/base/static/script.js \
