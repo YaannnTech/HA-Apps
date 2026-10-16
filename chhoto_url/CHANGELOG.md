@@ -1,3 +1,7 @@
+# 7.8.4.1
+
+- Update Chhoto URL to upstream release 7.8.4, which formats hit counts with thousands separators.
+
 # 7.8.3.1
 
 - Update Chhoto URL to upstream release 7.8.3, which fixes malformed public site URLs and missing URL protocols.
