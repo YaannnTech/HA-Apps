@@ -1,3 +1,10 @@
+# 0.2.0
+
+- Switched to the shared Web UI that is also used by the PhoneBlock Dongle ESP code.
+- Require the PhoneBlock token in the app configuration and apply it on every start, replacing the web sign-in that cannot complete through Home Assistant ingress.
+- Add optional advertised host and SIP port settings for NAT or routed setups; clearing them restores automatic detection.
+- Check the PhoneBlock token at start: a rejected token prevents the app from starting and creates a Home Assistant notification. The daily token check raises the same notification when the token expires, and it is dismissed once the token is accepted again.
+
 # 0.1.28
 
 - Use Home Assistant's dynamically assigned ingress port for the Web UI to avoid clashes with other host-network apps.
