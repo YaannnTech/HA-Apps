@@ -1,3 +1,7 @@
+# 0.2.2
+
+- Also omit successful periodic re-registrations from the log; failures are still logged.
+
 # 0.2.1
 
 - Reduce log noise by omitting full SIP messages, keepalives and routine registration handshakes; add an optional verbose log setting to restore them.

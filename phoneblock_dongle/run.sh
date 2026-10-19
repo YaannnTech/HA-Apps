@@ -130,7 +130,7 @@ quiet_log() {
     awk '
         /^[IWE] \([0-9]+\) / {
             dump = ($0 ~ /^I \([0-9]+\) sip: (→|←) .*[0-9]+ bytes\)?:$/)
-            if (dump || $0 ~ /^I \([0-9]+\) sip: (→ SIP keepalive ping|challenge: realm=|← [0-9]+ \()/) next
+            if (dump || $0 ~ /^I \([0-9]+\) sip: (→ SIP keepalive ping|challenge: realm=|re-REGISTERED \(|← [0-9]+ \()/) next
         }
         dump { next }
         { print; fflush() }
