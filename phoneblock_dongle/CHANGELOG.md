@@ -1,3 +1,7 @@
+# 0.2.1
+
+- Reduce log noise by omitting full SIP messages, keepalives and routine registration handshakes; add an optional verbose log setting to restore them.
+
 # 0.2.0
 
 - Switched to the shared Web UI that is also used by the PhoneBlock Dongle ESP code.

@@ -1,5 +1,5 @@
 name: PhoneBlock
-version: "0.2.0"
+version: "0.2.1"
 slug: phoneblock_dongle
 description: Run the "Phoneblock Dongle" as a Home Assistant App instead of a physical ESP32 Dongle
 url: https://github.com/YaannnTech/phoneblock/tree/dongle-step-4-web-ui/phoneblock-dongle
@@ -15,6 +15,7 @@ schema:
   phoneblock_token: password
   contact_host: str?
   contact_port: port?
+  verbose_log: bool?
 map:
   - type: data
     read_only: false

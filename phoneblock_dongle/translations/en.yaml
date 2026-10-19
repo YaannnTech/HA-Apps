@@ -8,3 +8,6 @@ configuration:
   contact_port:
     name: Advertised SIP port
     description: Optional. UDP port the registrar should use to reach this app, for example a forwarded port. Leave empty to use the local SIP port.
+  verbose_log:
+    name: Verbose log
+    description: Optional. Include full SIP messages, keepalives and registration handshakes in the log. Enable only when troubleshooting.

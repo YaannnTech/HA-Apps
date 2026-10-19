@@ -123,12 +123,27 @@ esac
 
 WEB_PORT_FILE=/run/phoneblock-web-port
 rm -f "${WEB_PORT_FILE}" "${WEB_PORT_FILE}.tmp"
-/usr/bin/phoneblock-dongle \
-    --service \
-    --web 0 \
-    --web-bind 127.0.0.1 \
-    --web-port-file "${WEB_PORT_FILE}" \
-    --config "${CONFIG_FILE}" &
+
+# The service logs unconditionally; drop full SIP message dumps, keepalives and
+# routine registration handshake lines, keeping summaries, warnings and errors.
+quiet_log() {
+    awk '
+        /^[IWE] \([0-9]+\) / {
+            dump = ($0 ~ /^I \([0-9]+\) sip: (→|←) .*[0-9]+ bytes\)?:$/)
+            if (dump || $0 ~ /^I \([0-9]+\) sip: (→ SIP keepalive ping|challenge: realm=|← [0-9]+ \()/) next
+        }
+        dump { next }
+        { print; fflush() }
+    '
+}
+
+dongle_args=(--service --web 0 --web-bind 127.0.0.1
+    --web-port-file "${WEB_PORT_FILE}" --config "${CONFIG_FILE}")
+if bashio::config.true 'verbose_log'; then
+    /usr/bin/phoneblock-dongle "${dongle_args[@]}" &
+else
+    /usr/bin/phoneblock-dongle "${dongle_args[@]}" 2> >(quiet_log >&2) &
+fi
 dongle_pid=$!
 
 cleanup() {
