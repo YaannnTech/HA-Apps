@@ -4,12 +4,11 @@ This Home Assistant app runs [Chhoto URL](https://github.com/SinTan1729/chhoto-u
 
 ## Installation & Usage
 
-1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**.
-2. Or simply press this button: <br>
+1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**, or simply press this button: <br>
 [![Add Repository](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FYaannnTech%2FHA-Apps)
-3. Install **Chhoto URL**.
-4. (Optional) Set an **Admin Password** on the Configuration tab.
-5. Start the app, then open it from the **Chhoto URL** entry in the sidebar, or at `http://HOME_ASSISTANT_IP:4567/`.
+2. Install **Chhoto URL**.
+3. (Optional) Set an **Admin Password** on the Configuration tab.
+4. Start the app, then open it from the **Chhoto URL** entry in the sidebar, or at `http://HOME_ASSISTANT_IP:4567/`.
 
 ## Settings
 

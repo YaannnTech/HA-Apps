@@ -6,13 +6,12 @@ It is based on the original [PhoneBlock Dongle project](https://github.com/hauma
 
 ## Setup
 
-1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**.
-2. Or simply press this button: <br>
+1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**, or simply press this button: <br>
 [![Add Repository](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FYaannnTech%2FHA-Apps)
-3. Install the **PhoneBlock** app.
-4. Open the app's **Configuration** tab and paste your PhoneBlock API token (starts with `pbt_`) into **PhoneBlock token**, then save. The app will not start without it.
-5. Start the app and open the **PhoneBlock** Web UI.
-6. Configure the SIP profile there, then choose and preview a localized announcement or upload your own raw 8 kHz mono G.711 A-law file.
+2. Install the **PhoneBlock** app.
+3. Open the app's **Configuration** tab and paste your PhoneBlock API token (starts with `pbt_`) into **PhoneBlock token**, then save. The app will not start without it.
+4. Start the app and open the **PhoneBlock** Web UI.
+5. Configure the SIP profile there, then choose and preview a localized announcement or upload your own raw 8 kHz mono G.711 A-law file.
 
 For NAT or routed setups, optionally set **Advertised host** and **Advertised SIP port** in the same tab; leave them empty to detect the address automatically.
 

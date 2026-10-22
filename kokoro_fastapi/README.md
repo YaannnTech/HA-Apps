@@ -6,12 +6,11 @@ It works well alongside the [Kokoro TTS HACS integration](https://github.com/bee
 
 ## Installation & Usage
 
-1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**.
-2. Or simply press this button: <br>
+1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**, or simply press this button: <br>
 [![Add Repository](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FYaannnTech%2FHA-Apps)
-3. Install **Kokoro-FastAPI**.
-4. Start the app and wait for the model to finish loading.
-5. Add and configure the [Kokoro TTS HACS integration](https://github.com/beecho01/Kokoro-TTS).
+2. Install **Kokoro-FastAPI**.
+3. Start the app and wait for the model to finish loading.
+4. Add and configure the [Kokoro TTS HACS integration](https://github.com/beecho01/Kokoro-TTS).
 
 Click **Open Web UI**, or open `http://HOME_ASSISTANT_IP:8880/web/` to play around with the Kokoro-FastAPI backend.
 
