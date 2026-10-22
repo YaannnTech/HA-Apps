@@ -1,8 +1,10 @@
 ARG PHONEBLOCK_REF=dongle-step-4-web-ui
-ARG PHONEBLOCK_CACHE_BUST=step4-94339123
+ARG PHONEBLOCK_CACHE_BUST=step4-59f4f438
 ARG PHONEBLOCK_VERSION=1.7.0-beta3
 
-FROM alpine:3.20 AS builder
+# Keep the builder's Alpine release in sync with the runtime base image below,
+# so the binary links against the same library versions it runs with.
+FROM alpine:3.24 AS builder
 ARG PHONEBLOCK_REF
 ARG PHONEBLOCK_CACHE_BUST
 ARG PHONEBLOCK_VERSION
@@ -16,7 +18,7 @@ RUN echo "Cloning PhoneBlock source cache ${PHONEBLOCK_CACHE_BUST}" \
 WORKDIR /src/phoneblock-dongle/firmware/test
 RUN make phoneblock_linux PHONEBLOCK_DATA_DIR=/data PHONEBLOCK_VERSION="${PHONEBLOCK_VERSION}"
 
-FROM ghcr.io/home-assistant/base:latest
+FROM ghcr.io/home-assistant/base:3.24-2026.10.0
 ARG BUILD_VERSION
 ARG BUILD_ARCH
 

@@ -56,12 +56,9 @@ PB_CONTACT_PORT="${contact_port}" awk '
 mv "${CONFIG_FILE}.new" "${CONFIG_FILE}"
 bashio::log.info "Applied PhoneBlock token and advertised address from the app configuration"
 
-# "|| true" is required: under set -e, a missing CONFIG_FILE makes sed exit
-# non-zero and that status propagates through the assignment, killing the
-# script right here (2>/dev/null only silences sed's stderr, not its exit code).
-sip_host="$(sed -n 's/^sip_host=//p' "${CONFIG_FILE}" 2>/dev/null || true)"
-sip_port="$(sed -n 's/^sip_port=//p' "${CONFIG_FILE}" 2>/dev/null || true)"
-sip_user="$(sed -n 's/^sip_user=//p' "${CONFIG_FILE}" 2>/dev/null || true)"
+sip_host="$(sed -n 's/^sip_host=//p' "${CONFIG_FILE}")"
+sip_port="$(sed -n 's/^sip_port=//p' "${CONFIG_FILE}")"
+sip_user="$(sed -n 's/^sip_user=//p' "${CONFIG_FILE}")"
 
 bashio::log.info "Starting PhoneBlock Dongle SIP service"
 bashio::log.info "SIP config: host=${sip_host} port=${sip_port} user=${sip_user}"
@@ -69,7 +66,7 @@ bashio::log.info "SIP config: host=${sip_host} port=${sip_port} user=${sip_user}
 if ! addon_info="$(curl -fsS \
     -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
     http://supervisor/addons/self/info)"; then
-    bashio::log.error "Could not retrieve add-on information from the Supervisor"
+    bashio::log.error "Could not retrieve app information from the Supervisor"
     exit 1
 fi
 if ! ingress_port="$(jq -er '.data.ingress_port' <<< "${addon_info}")"; then
@@ -107,7 +104,7 @@ notify_token_rejected() {
 }
 
 # Only a definite 401/403 blocks the start; an outage must not keep a good setup offline.
-pb_url="$(sed -n 's/^pb_url=//p' "${CONFIG_FILE}" 2>/dev/null || true)"
+pb_url="$(sed -n 's/^pb_url=//p' "${CONFIG_FILE}")"
 pb_url="${pb_url:-https://phoneblock.net/phoneblock}"
 token_status="$(printf 'Authorization: Bearer %s\n' "${phoneblock_token}" \
     | curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -H @- "${pb_url}/api/test" 2>/dev/null || true)"

@@ -1,3 +1,9 @@
+# 0.2.3
+
+- Rebuild with the reworked Linux service: it stays up while SIP or the PhoneBlock token is not configured yet, and applies the configured timezone.
+- Build the service on the same Alpine release as the pinned Home Assistant base image, so build and runtime libraries match.
+- Point the app's homepage link to this repository; the PhoneBlock fork remains linked from the README.
+
 # 0.2.2
 
 - Also omit successful periodic re-registrations from the log; failures are still logged.
