@@ -1,4 +1,4 @@
-FROM sintan1729/chhoto-url:7.8.4-alpine
+FROM sintan1729/chhoto-url:7.9.2-alpine
 
 ARG BUILD_VERSION
 ARG BUILD_ARCH

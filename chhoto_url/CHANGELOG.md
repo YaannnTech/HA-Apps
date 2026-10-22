@@ -1,3 +1,8 @@
+# 7.9.2.1
+
+- Update Chhoto URL to upstream release 7.9.2 (includes 7.9.0 and 7.9.1): asynchronous logging, faster password hashing, a password box placeholder, and OIDC login support in the backend and frontend. OIDC is not configurable in this app yet.
+- Hide upstream's "OIDC Issuer URL must be non empty." warning, which it logs on every start when OIDC is not configured.
+
 # 7.8.4.2
 
 - Fix **Enable WAL database mode** being ignored when turned off; WAL mode stayed enabled regardless of the setting.

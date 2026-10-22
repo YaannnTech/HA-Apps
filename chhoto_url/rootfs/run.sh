@@ -65,5 +65,9 @@ if [ -n "$api_key" ]; then
 	export CHHOTO_API_KEY="$api_key"
 fi
 
+# Upstream's default filter plus chhoto_url::oidc=error: OIDC isn't configurable in this app,
+# yet upstream warns "OIDC Issuer URL must be non empty." on every start. OIDC errors still show.
+export RUST_LOG="warn,chhoto_url=info,actix_session::middleware=error,chhoto_url::oidc=error"
+
 cd /app
 exec /app/chhoto-url
