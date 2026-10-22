@@ -2,7 +2,7 @@
 
 Bridges Tuya Smart / Smart Life cameras' IPC streams to standard RTSP, so they can be added to Home Assistant like any other RTSP camera — via the built-in **generic camera** platform or **go2rtc**.
 
-Built by wrapping [seydx/tuya-ipc-terminal](https://github.com/seydx/tuya-ipc-terminal), a Go CLI that authenticates with Tuya's cloud, discovers your cameras, and does the actual bridging.
+Built by wrapping [tuya-ipc-terminal](https://github.com/seydx/tuya-ipc-terminal) by seydx, a Go CLI that authenticates with Tuya's cloud, discovers your cameras, and does the actual bridging. The app currently builds from a [fork](https://github.com/YaannnTech/tuya-ipc-terminal/tree/fix/rtsp-stream-lockup) with RTSP playback fixes that have been offered upstream.
 
 ## Why does this exist?
 
@@ -18,10 +18,9 @@ See the **Documentation** tab for full setup, usage, and troubleshooting instruc
 
 ## Installation & Usage
 
-1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**.
-2. Or simply press this button: <br>
+1. If not already done in HA, add this repository (`https://github.com/YaannnTech/HA-Apps`) to **Settings → Apps → Install Apps → ⋮ → Repositories → Add**, or simply press this button: <br>
 [![Add Repository](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FYaannnTech%2FHA-Apps)
-3. Install **Tuya IPC Bridge**.
+2. Install **Tuya IPC Bridge**.
 3. Start the app, **then** configure accounts through the included Web UI.
 
 ## Settings
@@ -29,4 +28,4 @@ See the **Documentation** tab for full setup, usage, and troubleshooting instruc
 - **RTSP Port**: Port the bridged RTSP server listens on. The default is `8553`.
 - Tuya accounts are configured through the app's Ingress Web UI using QR code or password login.
 
-The app supports Home Assistant `amd64`, `aarch64`, and `armv7` installations.
+The app supports Home Assistant `amd64` and `aarch64` installations.

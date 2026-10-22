@@ -1,5 +1,5 @@
 configuration:
   rtsp_port:
     name: "RTSP Port"
-    description: "Port the bridged RTSP server listens on (default is 8553 instead of 8554, as the default RTSP port may already be in use by the system). Note: Tuya accounts are not configured here \u2014 add/remove them via this add-on's Web UI (Ingress panel), by QR code or password login."
+    description: "Port the bridged RTSP server listens on (default is 8553 instead of 8554, as the default RTSP port may already be in use by the system). Note: Tuya accounts are not configured here \u2014 add/remove them via this app's Web UI (Ingress panel), by QR code or password login."
 

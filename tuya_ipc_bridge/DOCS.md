@@ -1,16 +1,16 @@
 # Tuya IPC Bridge — Home Assistant App
 
-Wraps [seydx/tuya-ipc-terminal](https://github.com/seydx/tuya-ipc-terminal) (a Go CLI that authenticates with Tuya Smart Life cloud accounts, discovers IPC/camera devices, and bridges their streams to standard RTSP) as a Home Assistant add-on so you can add Tuya cameras to Home Assistant with the built-in **generic RTSP camera** platform or **go2rtc**.
+Wraps [tuya-ipc-terminal](https://github.com/seydx/tuya-ipc-terminal) by seydx (a Go CLI that authenticates with Tuya Smart Life cloud accounts, discovers IPC/camera devices, and bridges their streams to standard RTSP) as a Home Assistant app so you can add Tuya cameras to Home Assistant with the built-in **generic RTSP camera** platform or **go2rtc**.
 
 ## Installation
 
-1. In Home Assistant, go to **Settings → Add-ons → Add-on Store**.
+1. In Home Assistant, go to **Settings → Apps → Install Apps**.
 2. Click the **⋮** menu (top right) → **Repositories** → add this repository's URL (`https://github.com/YaannnTech/HA-Apps`).
-3. Find **Tuya IPC Bridge** in the store and click **Install**. The image is built locally from the upstream Go source at install time.
+3. Find **Tuya IPC Bridge** and click **Install**. The image is built locally from the Go source at install time, currently from a [fork](https://github.com/YaannnTech/tuya-ipc-terminal/tree/fix/rtsp-stream-lockup) with RTSP playback fixes that have been offered upstream.
 
 ## Adding Tuya accounts
 
-Open this add-on's **Web UI** (Ingress panel, from its Info page). It has forms for both
+Open this app's **Web UI** (Ingress panel, from its Info page). It has forms for both
 QR-code login and email/password login, plus a live list of currently authenticated accounts.
 
 ## Adding an account via QR code
@@ -18,8 +18,8 @@ QR-code login and email/password login, plus a live list of currently authentica
 In the Web UI, under **Add account via QR code**:
 
 1. Select the account's region and enter its email.
-2. Click **Start QR login** — a real, scannable QR code renders in the page (rendered
-   client-side; the raw login URL never leaves your browser/add-on).
+2. Click **Start QR login** — a real, scannable QR code appears in the page (rendered
+   by the app itself; the login URL is never sent to a third-party QR service).
 3. Scan it with the Tuya Smart / Smart Life app. The page polls automatically and shows
    *success* or *error* once the login completes.
 
@@ -27,14 +27,14 @@ In the Web UI, under **Add account via QR code**:
 
 ## Notifications
 
-Tuya sessions (both QR and password logins) expire after a few days, and the add-on can't do anything useful with zero accounts logged in. In both cases it creates a Home Assistant persistent notification (Settings → Notifications) with a link back to this add-on's Web UI, and automatically dismisses it once resolved:
+Tuya sessions (both QR and password logins) expire after a few days, and the app can't do anything useful with zero accounts logged in. In both cases it creates a Home Assistant persistent notification (Settings → Notifications) with a link back to this app's Web UI, and automatically dismisses it once resolved:
 
-- **No accounts configured**: Shown as soon as the add-on starts with zero logged-in accounts, dismissed once the first one is added.
+- **No accounts configured**: Shown as soon as the app starts with zero logged-in accounts, dismissed once the first one is added.
 - **Re-authentication needed**: Every stored session is re-checked hourly; if one has expired, a notification prompts you to log in again, dismissed once the session is valid again.
 
 ## Adding cameras to Home Assistant
 
-After the add-on has started, check the log for discovered camera names, then add each one as a generic camera, replacing `HOMEASSISTANT_HOST` with your Home Assistant host's IP/hostname:
+After the app has started, check the log for discovered camera names, then add each one as a generic camera, replacing `HOMEASSISTANT_HOST` with your Home Assistant host's IP/hostname:
 
 ```yaml
 camera:
@@ -43,7 +43,7 @@ camera:
     name: "Living Room Camera"
 ```
 
-Or, if you use the [go2rtc](https://github.com/AlexxIT/go2rtc) add-on:
+Or, if you use the [go2rtc](https://github.com/AlexxIT/go2rtc) app:
 
 ```yaml
 streams:
@@ -53,11 +53,11 @@ streams:
 
 ## Troubleshooting
 
-- Check the add-on log — authentication and camera discovery output is printed on every start.
-- If login keeps failing, verify the account/region/password
+- Check the app log — authentication and camera discovery output is printed on every start.
+- If login keeps failing, verify the account/region/password.
 - If cameras don't appear, confirm they're online in the Tuya Smart / Smart Life / other Tuya variant app first.
 
 ## Limitations
 
-This add-on only wraps and automates the upstream CLI; it does not add functionality beyond what `tuya-ipc-terminal` itself supports (see its
+This app only wraps and automates the upstream CLI; it does not add functionality beyond what `tuya-ipc-terminal` itself supports (see its
 [README](https://github.com/seydx/tuya-ipc-terminal) for supported camera types, codecs, and known limitations).

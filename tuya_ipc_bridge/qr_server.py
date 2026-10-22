@@ -24,8 +24,16 @@ def render_qr_svg(data):
     img.save(buf)
     return buf.getvalue()
 
+
 JOBS = {}
-JOBS_LOCK = threading.Lock()
+
+
+def start_job(target, region, email, *args):
+    job_id = uuid.uuid4().hex
+    JOBS[job_id] = {"region": region, "email": email, "state": "starting", "url": None, "message": ""}
+    thread = threading.Thread(target=target, args=(job_id, region, email, *args), daemon=True)
+    thread.start()
+    return job_id
 
 
 def run_qr_job(job_id, region, email):
@@ -44,10 +52,8 @@ def run_qr_job(job_id, region, email):
         job["message"] = f"Failed to start CLI: {exc}"
         return
 
-    job["process"] = proc
     for raw_line in iter(proc.stdout.readline, ""):
         line = raw_line.rstrip("\n")
-        job["log"].append(line)
 
         if line.startswith("QR_LOGIN_URL:"):
             job["url"] = line[len("QR_LOGIN_URL:"):]
@@ -71,22 +77,6 @@ def run_qr_job(job_id, region, email):
         job["message"] = "Process exited before login completed."
 
 
-def new_job(region, email):
-    job_id = uuid.uuid4().hex
-    JOBS[job_id] = {
-        "region": region,
-        "email": email,
-        "state": "starting",
-        "url": None,
-        "message": "",
-        "log": [],
-        "process": None,
-    }
-    thread = threading.Thread(target=run_qr_job, args=(job_id, region, email), daemon=True)
-    thread.start()
-    return job_id
-
-
 def run_password_job(job_id, region, email, password):
     job = JOBS[job_id]
     try:
@@ -107,22 +97,6 @@ def run_password_job(job_id, region, email, password):
     else:
         job["state"] = "error"
         job["message"] = "Authentication failed. Check the email/password and try again."
-
-
-def new_password_job(region, email, password):
-    job_id = uuid.uuid4().hex
-    JOBS[job_id] = {
-        "region": region,
-        "email": email,
-        "state": "starting",
-        "url": None,
-        "message": "",
-        "log": [],
-        "process": None,
-    }
-    thread = threading.Thread(target=run_password_job, args=(job_id, region, email, password), daemon=True)
-    thread.start()
-    return job_id
 
 
 def get_auth_list():
@@ -317,7 +291,7 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(400, "Invalid email")
                 return
 
-            job_id = new_job(region, email)
+            job_id = start_job(run_qr_job, region, email)
             self.send_response(303)
             self.send_header("Location", f"{self._base()}/qr/{job_id}")
             self.end_headers()
@@ -338,7 +312,7 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(400, "Password required")
                 return
 
-            job_id = new_password_job(region, email, password)
+            job_id = start_job(run_password_job, region, email, password)
             self.send_response(303)
             self.send_header("Location", f"{self._base()}/password/{job_id}")
             self.end_headers()

@@ -1,3 +1,10 @@
+# 0.9.3
+
+- **Breaking**: drop `armv7` support. The Home Assistant app base image is no longer published for `armv7`; existing `armv7` installations stay on 0.9.2.
+- Update the app base image to 21.0.8 (Alpine 3.24) and install the QR code library from Alpine packages instead of pip.
+- The build now fails loudly if one of the source patches no longer applies, instead of silently shipping without it.
+- Documentation: current Home Assistant "Apps" menu paths and wording, mention the tuya-ipc-terminal fork the app builds from, and correct the description of how the QR code is rendered.
+
 # 0.9.2
 
 - Fix native RTSP playback with clients that change camera-path casing, including VLC.
@@ -14,8 +21,8 @@
 # 0.9.0
 
 - **Breaking**: renamed the add-on from "Tuya IPC Terminal" to "Tuya IPC Bridge" (slug
-  `tuya_ipc_terminal` \u2192 `tuya_ipc_bridge`, folder renamed to match). Since the slug changed,
-  the Supervisor treats this as a new add-on \u2014 uninstall the old one and reinstall, then log
+  `tuya_ipc_terminal` → `tuya_ipc_bridge`, folder renamed to match). Since the slug changed,
+  the Supervisor treats this as a new add-on — uninstall the old one and reinstall, then log
   your accounts back in via the Web UI.
 
 # 0.4.6

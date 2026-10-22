@@ -7,14 +7,14 @@ cd "${DATA_DIR}"
 
 RTSP_PORT=$(bashio::config 'rtsp_port')
 
-# The Supervisor prefixes the config.yaml slug with a repository hash for add-ons installed
+# The Supervisor prefixes the config.yaml slug with a repository hash for apps installed
 # from a custom repository (e.g. "45df7312_tuya_ipc_bridge"), so the panel path can't just
-# be hardcoded from config.yaml - fetch the real slug Supervisor assigned instead. Confirmed
-# working panel path is "/<slug>" directly (not "/hassio/ingress/<slug>").
+# be hardcoded from config.yaml - fetch the real slug Supervisor assigned instead. The
+# panel path is "/app/<slug>" (not "/hassio/ingress/<slug>").
 if ! ADDON_INFO=$(curl -fsS \
     -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
     http://supervisor/addons/self/info); then
-    bashio::log.error "Could not retrieve add-on information from the Supervisor"
+    bashio::log.error "Could not retrieve app information from the Supervisor"
     exit 1
 fi
 ADDON_SLUG=$(jq -r '.data.slug // "tuya_ipc_bridge"' <<< "${ADDON_INFO}")
@@ -74,7 +74,7 @@ check_sessions() {
 
 # The RTSP server refuses to start with zero authenticated users, so it can't
 # just be exec'd here: accounts are only ever added later via the Web UI.
-# Keep the add-on alive and (re)start the RTSP server once/whenever users exist.
+# Keep the app alive and (re)start the RTSP server once/whenever users exist.
 RTSP_PID=""
 SESSION_CHECK_INTERVAL=3600
 LAST_SESSION_CHECK=0
