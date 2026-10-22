@@ -3,8 +3,9 @@ set -eu
 
 OPTIONS=/data/options.json
 
+# Not jq's "//": it treats false like a missing value, so a disabled option would get its default.
 get_option() {
-	jq -r --arg key "$1" --arg default "$2" '.[$key] // $default' "$OPTIONS"
+	jq -r --arg key "$1" --arg default "$2" 'if .[$key] == null then $default else .[$key] end' "$OPTIONS"
 }
 
 get_bool_option() {

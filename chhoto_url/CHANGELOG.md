@@ -1,3 +1,7 @@
+# 7.8.4.2
+
+- Fix **Enable WAL database mode** being ignored when turned off; WAL mode stayed enabled regardless of the setting.
+
 # 7.8.4.1
 
 - Update Chhoto URL to upstream release 7.8.4, which formats hit counts with thousands separators.
