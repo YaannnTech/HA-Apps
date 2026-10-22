@@ -1,3 +1,8 @@
+# 7.9.3.1
+
+- Update Chhoto URL to upstream release 7.9.3, which no longer logs the OIDC warning when OIDC is not configured ([#153](https://github.com/SinTan1729/chhoto-url/issues/153)) and improves the database cleanup and backup flow.
+- Remove this app's workaround that hid the OIDC warning.
+
 # 7.9.2.1
 
 - Update Chhoto URL to upstream release 7.9.2 (includes 7.9.0 and 7.9.1): asynchronous logging, faster password hashing, a password box placeholder, and OIDC login support in the backend and frontend. OIDC is not configurable in this app yet.
