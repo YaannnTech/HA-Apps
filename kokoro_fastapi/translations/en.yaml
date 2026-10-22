@@ -1,7 +1,7 @@
 configuration:
   api_log_level:
     name: API Log Level
-    description: Choose how much detail Kokoro writes to the app log.
+    description: Choose how much detail Kokoro writes to the app log. "Debug" also logs every HTTP request, including the frequent health checks.
   default_voice:
     name: Default Voice (fallback only!)
     description: "Voice used when a speech request does not specify one. Note: This setting here is overruled by your settings in the Kokoro-TTS HACS integration!"

@@ -17,7 +17,7 @@ Click **Open Web UI**, or open `http://HOME_ASSISTANT_IP:8880/web/` to play arou
 
 ## Settings
 
-- **API Log Level**: Choose how much detail Kokoro writes to the app log. Options are `Debug`, `Info`, `Warning`, and `Error`.
+- **API Log Level**: Choose how much detail Kokoro writes to the app log. Options are `Debug`, `Info`, `Warning`, and `Error`. Only `Debug` logs every HTTP request, including Home Assistant's health checks every few seconds.
 - **Default Voice**: Default Kokoro voice identifier. Use the **Open Web UI** link to browse and preview voices.
 - **Enable Web UI**: Serve Kokoro's browser-based web interface at `http://HOME_ASSISTANT_IP:8880/web/`.
 - **Support SSML**: Enable Speech Synthesis Markup Language, including pauses and other supported speech controls.

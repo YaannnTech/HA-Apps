@@ -1,3 +1,7 @@
+# 0.9.0.3
+
+- Quieter log: HTTP request lines, including Home Assistant's health check every few seconds, are only logged when **API Log Level** is set to `Debug`.
+
 # 0.9.0.2
 
 - Remove the leftover "Download model at startup" label for a setting that no longer exists; the model is always downloaded when missing.
