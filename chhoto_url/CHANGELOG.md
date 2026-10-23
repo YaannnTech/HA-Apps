@@ -1,3 +1,8 @@
+# 7.9.5.1
+
+- Update Chhoto URL to upstream release 7.9.5 (includes 7.9.4): more robust cleanup of expired links, and no plaintext-password warning in the log when neither a password nor an API key is set.
+- Stay logged in to the admin page across app restarts and updates. The app now generates a session key once and keeps it in its persistent data storage (upstream's new `CHHOTO_SESSION_MASTER_KEY`).
+
 # 7.9.3.1
 
 - Update Chhoto URL to upstream release 7.9.3, which no longer logs the OIDC warning when OIDC is not configured ([#153](https://github.com/SinTan1729/chhoto-url/issues/153)) and improves the database cleanup and backup flow.

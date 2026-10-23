@@ -21,7 +21,7 @@ This Home Assistant app runs [Chhoto URL](https://github.com/SinTan1729/chhoto-u
 
 Optional settings without a value are hidden; enable **Show unused optional configuration options** on the Configuration tab to see them.
 
-The short link database is stored in the app's persistent data storage, so it survives app restarts and updates.
+The short link database is stored in the app's persistent data storage, so it survives app restarts and updates. So does the admin login: the app keeps its session key there too.
 
 ## Related links
 

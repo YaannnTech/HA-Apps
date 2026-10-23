@@ -65,5 +65,13 @@ if [ -n "$api_key" ]; then
 	export CHHOTO_API_KEY="$api_key"
 fi
 
+# Upstream generates a new session key on every start, logging everyone out; keep one in /data instead.
+session_key_file=/data/session_master_key
+if [ ! -s "$session_key_file" ]; then
+	(umask 077 && od -An -vtx1 -N64 /dev/urandom | tr -d ' \n' >"$session_key_file")
+fi
+export CHHOTO_SESSION_MASTER_KEY
+CHHOTO_SESSION_MASTER_KEY="$(cat "$session_key_file")"
+
 cd /app
 exec /app/chhoto-url
