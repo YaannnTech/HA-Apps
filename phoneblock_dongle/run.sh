@@ -25,20 +25,32 @@ if [ -n "${contact_host}" ] && ! [[ "${contact_host}" =~ ^[A-Za-z0-9._:-]{1,63}$
     exit 1
 fi
 
+# Seed the dongle's timezone from Home Assistant's the first time. HA passes
+# TZ as a zone name (e.g. Europe/Berlin); the service expects the POSIX rule,
+# which is the last line of the zone file. A timezone chosen later in the web
+# UI is kept, since this only fills in a missing entry.
+host_tz=""
+if [ -n "${TZ:-}" ] && [ -f "/usr/share/zoneinfo/${TZ}" ]; then
+    host_tz="$(tail -n 1 "/usr/share/zoneinfo/${TZ}")"
+    [[ "${host_tz}" =~ ^[[:print:]]{2,63}$ ]] || host_tz=""
+fi
+
 config_source="${CONFIG_FILE}"
 [ -f "${config_source}" ] || config_source=/dev/null
 # Empty values remove the key, so clearing an option restores auto-detection.
 ( umask 077; PB_TOKEN="${phoneblock_token}" PB_CONTACT_HOST="${contact_host}" \
-PB_CONTACT_PORT="${contact_port}" awk '
+PB_CONTACT_PORT="${contact_port}" PB_HOST_TZ="${host_tz}" awk '
     BEGIN {
         n = split("pb_token contact_host contact_port", keys, " ")
         vals["pb_token"] = ENVIRON["PB_TOKEN"]
         vals["contact_host"] = ENVIRON["PB_CONTACT_HOST"]
         vals["contact_port"] = ENVIRON["PB_CONTACT_PORT"]
+        host_tz = ENVIRON["PB_HOST_TZ"]
     }
     function emit(  i) {
         if (done) return
         for (i = 1; i <= n; i++) if (vals[keys[i]] != "") print keys[i] "=" vals[keys[i]]
+        if (host_tz != "" && !have_tz) print "timezone=" host_tz
         done = 1
     }
     /^[[:space:]]*\[/ {
@@ -47,6 +59,7 @@ PB_CONTACT_PORT="${contact_port}" awk '
         seen = seen || in_section
     }
     in_section && /^(pb_token|contact_host|contact_port)=/ { next }
+    in_section && /^timezone=/ { have_tz = 1 }
     { print }
     END {
         if (in_section) emit()
@@ -134,7 +147,7 @@ quiet_log() {
     '
 }
 
-dongle_args=(--service --web 0 --web-bind 127.0.0.1
+dongle_args=(--web 0 --web-bind 127.0.0.1
     --web-port-file "${WEB_PORT_FILE}" --config "${CONFIG_FILE}")
 if bashio::config.true 'verbose_log'; then
     /usr/bin/phoneblock-dongle "${dongle_args[@]}" &

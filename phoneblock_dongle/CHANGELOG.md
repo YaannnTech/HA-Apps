@@ -1,3 +1,12 @@
+# 0.2.4
+
+- The web UI's log panel now shows the service's warnings and errors (and info lines when enabled), and they are included in the daily log report to PhoneBlock when error reports are enabled.
+- Take the timezone from Home Assistant on first start instead of defaulting to Central European Time. A timezone chosen later in the web UI is kept.
+- A timezone change in the web UI applies immediately and safely while the service is running.
+- Hide the PhoneBlock sign-in buttons ("Neu anfordern" and the button on the token page) in the web UI, since that sign-in cannot complete through Home Assistant. The token is set in the app configuration.
+- Report the PhoneBlock firmware version the service was built from (e.g. 1.7.0-beta3-102-g092776f), derived from the upstream release tags, instead of a fixed version.
+- Rebuild with the latest upstream changes, including the safer service shutdown from the step 3 review.
+
 # 0.2.3
 
 - Rebuild with the reworked Linux service: it stays up while SIP or the PhoneBlock token is not configured yet, and applies the configured timezone.

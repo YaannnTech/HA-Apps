@@ -17,7 +17,9 @@ For NAT or routed setups, optionally set **Advertised host** and **Advertised SI
 
 The log omits full SIP messages, keepalives and routine registration handshakes. Enable **Verbose log** in the Configuration tab and restart the app when you need them for troubleshooting.
 
-The configured token is applied on every start and checked with PhoneBlock. If PhoneBlock rejects it, the app does not start and Home Assistant shows a **PhoneBlock: token rejected** notification; the same notification appears if the token expires later (detected by the daily check). Update **PhoneBlock token** in the Configuration tab and restart the app; the notification is dismissed once the token is accepted. If PhoneBlock can't be reached at start, the app starts anyway. The web UI's own sign-in is not used.
+The configured token is applied on every start and checked with PhoneBlock. If PhoneBlock rejects it, the app does not start and Home Assistant shows a **PhoneBlock: token rejected** notification; the same notification appears if the token expires later (detected by the daily check). Update **PhoneBlock token** in the Configuration tab and restart the app; the notification is dismissed once the token is accepted. If PhoneBlock can't be reached at start, the app starts anyway. The web UI hides its own PhoneBlock sign-in, since that sign-in cannot complete through Home Assistant.
+
+On first start the app takes Home Assistant's timezone; you can change it later in the web UI's settings. The web UI's log panel shows the service's warnings and errors.
 
 The app supports Home Assistant `amd64` and `aarch64` installations. It uses
 host networking so SIP and RTP can use their configured UDP ports.
