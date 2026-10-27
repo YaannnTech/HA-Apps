@@ -1,3 +1,8 @@
+# 0.2.5
+
+- Build from the upstream PhoneBlock repository (haumacher/phoneblock, branch master) now that the Linux web UI is merged there, instead of from the step 4 branch of the fork.
+- Rebuild with the latest upstream changes: web UI requests are handled one at a time, as on the dongle, and request bodies are limited to 256 KB.
+
 # 0.2.4
 
 - The web UI's log panel now shows the service's warnings and errors (and info lines when enabled), and they are included in the daily log report to PhoneBlock when error reports are enabled.

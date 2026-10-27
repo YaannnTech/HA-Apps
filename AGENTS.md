@@ -10,7 +10,7 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 | --- | --- | --- |
 | `chhoto_url` | `sintan1729/chhoto-url` image | `FROM` the upstream `-alpine` image, sed-patches the minified frontend, `rootfs/run.sh` maps options to `CHHOTO_*` env vars and `exec`s `/app/chhoto-url` |
 | `kokoro_fastapi` | `ghcr.io/remsky/kokoro-fastapi-cpu` image | `rootfs/run.sh` maps options to env vars, then `exec`s upstream's `/app/entrypoint.sh` |
-| `phoneblock_dongle` | branch `dongle-step-4-web-ui` of the YaannnTech/phoneblock fork | multi-stage: compiles the Linux service from source on Alpine, runs it behind nginx for Ingress |
+| `phoneblock_dongle` | branch `master` of upstream haumacher/phoneblock | multi-stage: compiles the Linux service from source on Alpine, runs it behind nginx for Ingress |
 | `tuya_ipc_bridge` | branch `fix/rtsp-stream-lockup` of the YaannnTech/tuya-ipc-terminal fork | multi-stage Go build with sed patches; `run.sh` supervises the RTSP server, `qr_server.py` is the Ingress login UI |
 
 ## Anatomy of an app
@@ -33,7 +33,7 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 - **Chhoto URL option parsing:** `get_option` in `chhoto_url/rootfs/run.sh` must not use jq's `//`, which treats `false` as missing.
 - **Chhoto URL session key:** `run.sh` generates `/data/session_master_key` once (64 random bytes, hex) and exports it as `CHHOTO_SESSION_MASTER_KEY`. Upstream silently falls back to a random per-start key if the value fails its length or strength check; the startup log must say "Using provided session master key."
 - **Kokoro logging:** upstream hardcodes `uvicorn --log-level debug`; `run.sh` sets `UVICORN_ACCESS_LOG=false` unless API Log Level is Debug, to keep the watchdog's `/health` requests out of the log.
-- **PhoneBlock source pinning:** the Dockerfile clones a moving branch. After pushing new commits to `dongle-step-4-web-ui`, set `PHONEBLOCK_CACHE_BUST=step4-<short sha>` so builds pick them up. The builder (`alpine:X`) and runtime (`ghcr.io/home-assistant/base:X-…`) must use the same Alpine release.
+- **PhoneBlock source pinning:** the Dockerfile clones a moving branch (upstream `master`). To pick up new upstream commits, set `PHONEBLOCK_CACHE_BUST=master-<short sha>`; otherwise builds reuse a stale clone. The builder (`alpine:X`) and runtime (`ghcr.io/home-assistant/base:X-…`) must use the same Alpine release.
 - **Dynamic Ingress ports:** `phoneblock_dongle` and `tuya_ipc_bridge` use `host_network: true` with `ingress_port: 0`; `run.sh` reads the real port (and the slug, which the Supervisor prefixes with a repository hash) from `/addons/self/info`. Notification links use `/app/<slug>`.
 - **Tuya base image:** `tuya_ipc_bridge/build.yaml` sets `BUILD_FROM` per architecture (`hassio-addons/base`); armv7 was dropped because that base is no longer published for it.
 

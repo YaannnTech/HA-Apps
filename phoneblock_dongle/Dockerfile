@@ -1,5 +1,5 @@
-ARG PHONEBLOCK_REF=dongle-step-4-web-ui
-ARG PHONEBLOCK_CACHE_BUST=step4-092776f6
+ARG PHONEBLOCK_REF=master
+ARG PHONEBLOCK_CACHE_BUST=master-4f579571
 
 # Keep the builder's Alpine release in sync with the runtime base image below,
 # so the binary links against the same library versions it runs with.
@@ -10,16 +10,13 @@ RUN echo "Building PhoneBlock source cache ${PHONEBLOCK_CACHE_BUST}" \
     && apk add --no-cache build-base cjson-dev curl-dev git libmicrohttpd-dev \
          libsrtp-dev openssl-dev pkgconf python3
 WORKDIR /src
-# Treeless clone (full commit history, file contents only for the checkout)
-# plus the dongle-v* release tags from upstream, which the fork does not
-# carry: the Makefile derives the firmware version with git describe, like
-# the ESP32 build, e.g. 1.7.0-beta3-81-g1a2b3c4.
+# Treeless clone (full commit history and tags, file contents only for the
+# checkout): the Makefile derives the firmware version from the dongle-v*
+# release tags with git describe, like the ESP32 build,
+# e.g. 1.7.0-beta3-81-g1a2b3c4.
 RUN echo "Cloning PhoneBlock source cache ${PHONEBLOCK_CACHE_BUST}" \
     && git clone --filter=tree:0 --branch "${PHONEBLOCK_REF}" \
-    https://github.com/YaannnTech/phoneblock.git . \
-    && git fetch --filter=tree:0 --no-tags \
-    https://github.com/haumacher/phoneblock.git \
-    'refs/tags/dongle-v*:refs/tags/dongle-v*'
+    https://github.com/haumacher/phoneblock.git .
 WORKDIR /src/phoneblock-dongle/firmware/test
 RUN make phoneblock_linux PHONEBLOCK_DATA_DIR=/data
 
@@ -32,7 +29,7 @@ LABEL \
     io.hass.type="app" \
     io.hass.arch="${BUILD_ARCH}" \
     org.opencontainers.image.title="PhoneBlock Dongle" \
-    org.opencontainers.image.source="https://github.com/YaannnTech/phoneblock"
+    org.opencontainers.image.source="https://github.com/haumacher/phoneblock"
 
 RUN apk add --no-cache ca-certificates cjson curl jq libcurl libmicrohttpd \
     libsrtp nginx openssl
