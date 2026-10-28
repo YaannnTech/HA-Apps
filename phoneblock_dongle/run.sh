@@ -136,8 +136,10 @@ rm -f "${WEB_PORT_FILE}" "${WEB_PORT_FILE}.tmp"
 
 # The service logs unconditionally; drop full SIP message dumps, keepalives and
 # routine registration handshake lines, keeping summaries, warnings and errors.
+# mawk (Debian's awk) holds back piped input without -W interactive, so a
+# warning would only reach the log with the next line.
 quiet_log() {
-    awk '
+    mawk -W interactive '
         /^[IWE] \([0-9]+\) / {
             dump = ($0 ~ /^I \([0-9]+\) sip: (→|←) .*[0-9]+ bytes\)?:$/)
             if (dump || $0 ~ /^I \([0-9]+\) sip: (→ SIP keepalive ping|challenge: realm=|re-REGISTERED \(|← [0-9]+ \()/) next
@@ -146,6 +148,11 @@ quiet_log() {
         { print; fflush() }
     '
 }
+
+# The platform comment in the service's User-Agent, so PhoneBlock's API key
+# list tells this app from a Raspberry Pi install ("Linux"). Read by
+# firmware versions with haumacher/phoneblock#650; older ones ignore it.
+export PHONEBLOCK_PLATFORM="Linux; HA"
 
 dongle_args=(--web 0 --web-bind 127.0.0.1
     --web-port-file "${WEB_PORT_FILE}" --config "${CONFIG_FILE}")
@@ -188,7 +195,7 @@ fi
 sed -e "s/@INGRESS_PORT@/${ingress_port}/g" \
     -e "s/@WEB_PORT@/${web_port}/g" \
     /etc/nginx/phoneblock.conf.template \
-    > /etc/nginx/http.d/default.conf
+    > /etc/nginx/conf.d/phoneblock.conf
 nginx
 bashio::log.info "PhoneBlock web server bound to dynamic loopback port ${web_port}"
 

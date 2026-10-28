@@ -1,28 +1,21 @@
-ARG PHONEBLOCK_REF=master
-ARG PHONEBLOCK_CACHE_BUST=master-4f579571
+# The released Linux service from the upstream APT repository
+# (https://haumacher.github.io/phoneblock/apt/), the same package and version
+# as on a Raspberry Pi. The app version follows it (see AGENTS.md).
+ARG PHONEBLOCK_VERSION=1.7.0~beta7
+ARG PHONEBLOCK_SUITE=trixie
+ARG PHONEBLOCK_CHANNEL=beta
+# Fingerprint of the repository's signing key, checked before it is trusted.
+ARG PHONEBLOCK_REPO_FINGERPRINT=0A1948B95F45BADD626CB753ADFAC8AA5581163F
 
-# Keep the builder's Alpine release in sync with the runtime base image below,
-# so the binary links against the same library versions it runs with.
-FROM alpine:3.24 AS builder
-ARG PHONEBLOCK_REF
-ARG PHONEBLOCK_CACHE_BUST
-RUN echo "Building PhoneBlock source cache ${PHONEBLOCK_CACHE_BUST}" \
-    && apk add --no-cache build-base cjson-dev curl-dev git libmicrohttpd-dev \
-         libsrtp-dev openssl-dev pkgconf python3
-WORKDIR /src
-# Treeless clone (full commit history and tags, file contents only for the
-# checkout): the Makefile derives the firmware version from the dongle-v*
-# release tags with git describe, like the ESP32 build,
-# e.g. 1.7.0-beta3-81-g1a2b3c4.
-RUN echo "Cloning PhoneBlock source cache ${PHONEBLOCK_CACHE_BUST}" \
-    && git clone --filter=tree:0 --branch "${PHONEBLOCK_REF}" \
-    https://github.com/haumacher/phoneblock.git .
-WORKDIR /src/phoneblock-dongle/firmware/test
-RUN make phoneblock_linux PHONEBLOCK_DATA_DIR=/data
-
-FROM ghcr.io/home-assistant/base:3.24-2026.10.0
+# Keep the Debian release in sync with PHONEBLOCK_SUITE: the package is
+# built per suite against that release's libraries.
+FROM ghcr.io/home-assistant/base-debian:trixie-2026.10.3
 ARG BUILD_VERSION
 ARG BUILD_ARCH
+ARG PHONEBLOCK_VERSION
+ARG PHONEBLOCK_SUITE
+ARG PHONEBLOCK_CHANNEL
+ARG PHONEBLOCK_REPO_FINGERPRINT
 
 LABEL \
     io.hass.version="${BUILD_VERSION}" \
@@ -31,13 +24,29 @@ LABEL \
     org.opencontainers.image.title="PhoneBlock Dongle" \
     org.opencontainers.image.source="https://github.com/haumacher/phoneblock"
 
-RUN apk add --no-cache ca-certificates cjson curl jq libcurl libmicrohttpd \
-    libsrtp nginx openssl
-COPY --from=builder /src/phoneblock-dongle/firmware/build/linux-host/phoneblock-dongle /usr/bin/phoneblock-dongle
-COPY --from=builder /src/phoneblock-dongle/firmware/build/linux-host/web/ /usr/share/phoneblock-dongle/web/
-COPY --from=builder /src/phoneblock-dongle/firmware/i18n/audio /usr/share/phoneblock/announcements
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl gpg jq \
+         nginx tzdata \
+    && curl -fsSLo /usr/share/keyrings/phoneblock-dongle.gpg \
+         https://haumacher.github.io/phoneblock/apt/phoneblock-dongle.gpg \
+    && gpg --show-keys --with-colons /usr/share/keyrings/phoneblock-dongle.gpg \
+         | grep -q "^fpr:::::::::${PHONEBLOCK_REPO_FINGERPRINT}:$" \
+    && echo "deb [signed-by=/usr/share/keyrings/phoneblock-dongle.gpg] https://haumacher.github.io/phoneblock/apt ${PHONEBLOCK_SUITE} ${PHONEBLOCK_CHANNEL}" \
+         > /etc/apt/sources.list.d/phoneblock-dongle.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+         "phoneblock-dongle=${PHONEBLOCK_VERSION}" \
+    && apt-get purge -y gpg && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    # The package keeps its state in /var/lib/phoneblock; the app's persistent
+    # storage is /data, where builds before 1.7.0-beta7-1 kept the same files.
+    && rm -rf /var/lib/phoneblock && ln -s /data /var/lib/phoneblock \
+    # The stock site listens on port 80, which host networking would take
+    # from the host; run.sh writes the Ingress site instead.
+    && rm -f /etc/nginx/sites-enabled/default
+
 COPY run.sh /run.sh
 COPY nginx.conf /etc/nginx/phoneblock.conf.template
-RUN chmod a+x /run.sh /usr/bin/phoneblock-dongle
+RUN chmod a+x /run.sh
 
 CMD ["/run.sh"]

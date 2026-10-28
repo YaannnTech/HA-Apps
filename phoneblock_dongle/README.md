@@ -2,7 +2,7 @@
 
 This app runs the native Linux PhoneBlock SIP spam-call blocker inside Home Assistant. It is intended to run on the same network as a Fritz!Box or other compatible router.
 
-It is built from the Linux port of the [PhoneBlock Dongle firmware](https://github.com/haumacher/phoneblock/tree/master/phoneblock-dongle) in the upstream PhoneBlock repository.
+It installs the released Linux version of the [PhoneBlock Dongle firmware](https://github.com/haumacher/phoneblock/tree/master/phoneblock-dongle) from the upstream [PhoneBlock APT repository](https://haumacher.github.io/phoneblock/apt/), the same package a Raspberry Pi uses. The app version follows the firmware version, plus the app build: for example, 1.7.0-beta7-1 is firmware 1.7.0-beta7, first app build. Until PhoneBlock 1.7.0 is released, the app follows the beta channel.
 
 ## Setup
 

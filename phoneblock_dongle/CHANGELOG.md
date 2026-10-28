@@ -1,3 +1,11 @@
+# 1.7.0-beta7-1
+
+- Install the released PhoneBlock Linux service from the upstream APT repository (package `phoneblock-dongle` 1.7.0~beta7, beta channel) instead of compiling the upstream `master` branch. The app now runs the same package and version as a Raspberry Pi install, on Home Assistant's Debian base image. Firmware release notes: [1.7.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/1.7.0.md).
+- The app version now follows the firmware: 1.7.0-beta7-1 is firmware 1.7.0-beta7, first app build.
+- Settings and an uploaded announcement are kept: the service still stores them in the app's `/data`.
+- Report "Linux; HA" as the platform to PhoneBlock, once a firmware release supports it (haumacher/phoneblock#650), so the API key list tells the app from other installs.
+- Remove the bundled announcement recordings left over from 0.1.24; the service downloads the announcement for the selected language, as the dongle does.
+
 # 0.2.5
 
 - Build from the upstream PhoneBlock repository (haumacher/phoneblock, branch master) now that the Linux web UI is merged there, instead of from the step 4 branch of the fork.
