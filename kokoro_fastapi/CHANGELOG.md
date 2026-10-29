@@ -1,3 +1,7 @@
+# 0.9.1.1
+
+- Update Kokoro-FastAPI to [v0.9.1](https://github.com/remsky/Kokoro-FastAPI/releases/tag/v0.9.1): Dependency updates for security advisories, the startup log shows the configured port instead of the default one, and the web player keeps text typed with an input method editor (IME).
+
 # 0.9.0.3
 
 - Quieter log: HTTP request lines, including Home Assistant's health check every few seconds, are only logged when **API Log Level** is set to `Debug`.
