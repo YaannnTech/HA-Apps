@@ -1,3 +1,7 @@
+# 0.9.2.1
+
+- Update Kokoro-FastAPI to [v0.9.2](https://github.com/remsky/Kokoro-FastAPI/releases/tag/v0.9.2): The health check and voice list stay responsive during generation, words around an unspaced ellipsis are read as words instead of spelled out, and `1,5s` reads as "one point five seconds". A sentence that fails to generate now fails the request instead of going silently missing.
+
 # 0.9.1.1
 
 - Update Kokoro-FastAPI to [v0.9.1](https://github.com/remsky/Kokoro-FastAPI/releases/tag/v0.9.1): Dependency updates for security advisories, the startup log shows the configured port instead of the default one, and the web player keeps text typed with an input method editor (IME).
