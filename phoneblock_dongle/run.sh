@@ -11,11 +11,10 @@ else
     bashio::log.info "No configuration yet; configure the dongle in the web UI"
 fi
 
-if ! bashio::config.has_value 'phoneblock_token'; then
-    bashio::log.error "Set the PhoneBlock token in the app configuration and restart"
-    exit 1
-fi
-phoneblock_token="$(bashio::config 'phoneblock_token')"
+# Optional: Without it the account is linked in the web UI, and the service
+# keeps the linked token in dongle.conf.
+phoneblock_token=""
+bashio::config.has_value 'phoneblock_token' && phoneblock_token="$(bashio::config 'phoneblock_token')"
 contact_host=""
 contact_port=""
 bashio::config.has_value 'contact_host' && contact_host="$(bashio::config 'contact_host')"
@@ -38,6 +37,7 @@ fi
 config_source="${CONFIG_FILE}"
 [ -f "${config_source}" ] || config_source=/dev/null
 # Empty values remove the key, so clearing an option restores auto-detection.
+# The token is the exception: An empty option keeps the stored, linked token.
 ( umask 077; PB_TOKEN="${phoneblock_token}" PB_CONTACT_HOST="${contact_host}" \
 PB_CONTACT_PORT="${contact_port}" PB_HOST_TZ="${host_tz}" awk '
     BEGIN {
@@ -58,7 +58,8 @@ PB_CONTACT_PORT="${contact_port}" PB_HOST_TZ="${host_tz}" awk '
         in_section = ($0 ~ /^[[:space:]]*\[phoneblock\][[:space:]]*$/)
         seen = seen || in_section
     }
-    in_section && /^(pb_token|contact_host|contact_port)=/ { next }
+    in_section && /^(contact_host|contact_port)=/ { next }
+    in_section && /^pb_token=/ && vals["pb_token"] != "" { next }
     in_section && /^timezone=/ { have_tz = 1 }
     { print }
     END {
@@ -67,7 +68,7 @@ PB_CONTACT_PORT="${contact_port}" PB_HOST_TZ="${host_tz}" awk '
     }
 ' "${config_source}" > "${CONFIG_FILE}.new" )
 mv "${CONFIG_FILE}.new" "${CONFIG_FILE}"
-bashio::log.info "Applied PhoneBlock token and advertised address from the app configuration"
+bashio::log.info "Applied the app configuration"
 
 sip_host="$(sed -n 's/^sip_host=//p' "${CONFIG_FILE}")"
 sip_port="$(sed -n 's/^sip_port=//p' "${CONFIG_FILE}")"
@@ -113,23 +114,28 @@ notify_ha() {
 TOKEN_NOTIFICATION_ID="phoneblock_dongle_token_invalid"
 notify_token_rejected() {
     notify_ha create "${TOKEN_NOTIFICATION_ID}" "PhoneBlock: token rejected" \
-        "PhoneBlock rejected the API token. Open the app's **Configuration** tab ([Open configuration](${config_link})), enter a valid **PhoneBlock token**, save, and restart the app."
+        "PhoneBlock rejected the API token. Open the app's **Configuration** tab ([Open configuration](${config_link})), enter a valid **PhoneBlock token** or clear the field, save, and restart the app. Without a token you can link your account in the app's web UI."
 }
 
 # Only a definite 401/403 blocks the start; an outage must not keep a good setup offline.
-pb_url="$(sed -n 's/^pb_url=//p' "${CONFIG_FILE}")"
-pb_url="${pb_url:-https://phoneblock.net/phoneblock}"
-token_status="$(printf 'Authorization: Bearer %s\n' "${phoneblock_token}" \
-    | curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -H @- "${pb_url}/api/test" 2>/dev/null || true)"
-case "${token_status}" in
-    401|403)
-        bashio::log.error "PhoneBlock rejected the token (HTTP ${token_status}); not starting"
-        notify_token_rejected
-        exit 1
-        ;;
-    200) notify_ha dismiss "${TOKEN_NOTIFICATION_ID}" ;;
-    *) bashio::log.warning "Could not verify the PhoneBlock token (HTTP ${token_status:-none}); starting anyway" ;;
-esac
+# Without a token option the web UI must stay reachable to link the account.
+if [ -n "${phoneblock_token}" ]; then
+    pb_url="$(sed -n 's/^pb_url=//p' "${CONFIG_FILE}")"
+    pb_url="${pb_url:-https://phoneblock.net/phoneblock}"
+    token_status="$(printf 'Authorization: Bearer %s\n' "${phoneblock_token}" \
+        | curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -H @- "${pb_url}/api/test" 2>/dev/null || true)"
+    case "${token_status}" in
+        401|403)
+            bashio::log.error "PhoneBlock rejected the token (HTTP ${token_status}); not starting"
+            notify_token_rejected
+            exit 1
+            ;;
+        200) notify_ha dismiss "${TOKEN_NOTIFICATION_ID}" ;;
+        *) bashio::log.warning "Could not verify the PhoneBlock token (HTTP ${token_status:-none}); starting anyway" ;;
+    esac
+else
+    notify_ha dismiss "${TOKEN_NOTIFICATION_ID}"
+fi
 
 WEB_PORT_FILE=/run/phoneblock-web-port
 rm -f "${WEB_PORT_FILE}" "${WEB_PORT_FILE}.tmp"
@@ -150,8 +156,7 @@ quiet_log() {
 }
 
 # The platform comment in the service's User-Agent, so PhoneBlock's API key
-# list tells this app from a Raspberry Pi install ("Linux"). Read by
-# firmware versions with haumacher/phoneblock#650; older ones ignore it.
+# list tells this app from a Raspberry Pi install ("Linux").
 export PHONEBLOCK_PLATFORM="Linux; HA"
 
 dongle_args=(--web 0 --web-bind 127.0.0.1

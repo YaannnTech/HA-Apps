@@ -1,3 +1,9 @@
+# 1.7.0-beta8-1
+
+- Update to PhoneBlock firmware 1.7.0-beta8 (package `phoneblock-dongle` 1.7.0~beta8). Includes the Linux User-Agent platform, the call webhook, relative web UI URLs, a call list that survives restarts, optional call recording, the interactive dialog with your own clips, and dark mode. Firmware release notes: [1.7.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/1.7.0.md).
+- **PhoneBlock token** is now optional: You can link your account in the web UI with a code instead. An empty field keeps the linked token; a token entered here replaces it on every start. Existing setups keep working unchanged.
+- Allow uploads of up to 2 MB through the web UI, so a custom dialog larger than 1 MB is not rejected.
+
 # 1.7.0-beta7-1
 
 - Install the released PhoneBlock Linux service from the upstream APT repository (package `phoneblock-dongle` 1.7.0~beta7, beta channel) instead of compiling the upstream `master` branch. The app now runs the same package and version as a Raspberry Pi install, on Home Assistant's Debian base image. Firmware release notes: [1.7.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/1.7.0.md).

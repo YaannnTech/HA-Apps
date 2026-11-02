@@ -1,7 +1,7 @@
 configuration:
   phoneblock_token:
     name: PhoneBlock token
-    description: Required. PhoneBlock API token (starts with pbt_) from your PhoneBlock account. It replaces the stored token on every start; to change it, update it here and restart the app.
+    description: Optional. PhoneBlock API token (starts with pbt_) from your PhoneBlock account. Leave empty to link your account in the web UI instead. If set, it replaces the stored token on every start, including a linked one.
   contact_host:
     name: Advertised host
     description: Optional. Hostname or IP address the SIP registrar should use to reach this app, for NAT or routed setups. Leave empty to detect it automatically.
