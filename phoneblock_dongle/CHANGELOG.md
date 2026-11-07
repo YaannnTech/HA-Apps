@@ -1,3 +1,11 @@
+# 1.7.0-beta9-1
+
+- Update to PhoneBlock firmware 1.7.0-beta9 (package `phoneblock-dongle` 1.7.0~beta9). Firmware release notes: [1.7.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/1.7.0.md).
+- In Home Assistant, the web UI keeps the dashboard instead of showing "Anmeldung erforderlich" when you come back to a page left open in the background (#703), and the uptime counts from the app start instead of the host's boot (#700).
+- New in the web UI: Reset the call counters on the status page (#557), and "Letzte Anrufe" shows calls as compact cards on a phone (#701).
+- A second dongle on the same Fritz!Box asks before taking over the first one's telephony entry (#708).
+- Update the Home Assistant Debian base image to trixie-2026.11.0, with current Debian package updates.
+
 # 1.7.0-beta8-1
 
 - Update to PhoneBlock firmware 1.7.0-beta8 (package `phoneblock-dongle` 1.7.0~beta8). Includes the Linux User-Agent platform, the call webhook, relative web UI URLs, a call list that survives restarts, optional call recording, the interactive dialog with your own clips, and dark mode. Firmware release notes: [1.7.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/1.7.0.md).

@@ -1,7 +1,7 @@
 # The released Linux service from the upstream APT repository
 # (https://haumacher.github.io/phoneblock/apt/), the same package and version
 # as on a Raspberry Pi. The app version follows it (see AGENTS.md).
-ARG PHONEBLOCK_VERSION=1.7.0~beta8
+ARG PHONEBLOCK_VERSION=1.7.0~beta9
 ARG PHONEBLOCK_SUITE=trixie
 ARG PHONEBLOCK_CHANNEL=beta
 # Fingerprint of the repository's signing key, checked before it is trusted.
@@ -9,7 +9,7 @@ ARG PHONEBLOCK_REPO_FINGERPRINT=0A1948B95F45BADD626CB753ADFAC8AA5581163F
 
 # Keep the Debian release in sync with PHONEBLOCK_SUITE: the package is
 # built per suite against that release's libraries.
-FROM ghcr.io/home-assistant/base-debian:trixie-2026.10.3
+FROM ghcr.io/home-assistant/base-debian:trixie-2026.11.0
 ARG BUILD_VERSION
 ARG BUILD_ARCH
 ARG PHONEBLOCK_VERSION
