@@ -1,0 +1,13 @@
+failure-threshold: warning
+ignored:
+  # Distro packages are not pinned: The base image tag pins the release, and
+  # pinned package versions disappear from the Alpine/Debian mirrors.
+  - DL3008
+  - DL3018
+  # Supervisor apps run as root (Kokoro's upstream image switches to a user).
+  - DL3002
+  # FROM ${BUILD_FROM}: The tag comes from build.yaml.
+  - DL3006
+  # The piped RUN checks end in `grep -q`; with pipefail its early exit could
+  # fail the build through SIGPIPE on the writing side.
+  - DL4006

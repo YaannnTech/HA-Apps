@@ -34,9 +34,10 @@ export API_LOG_LEVEL="${api_log_level^^}"
 if [[ "${API_LOG_LEVEL}" != "DEBUG" ]]; then
     export UVICORN_ACCESS_LOG=false
 fi
-export DEFAULT_VOICE="$(get_option default_voice am_fenrir)"
-export ENABLE_WEB_PLAYER="$(get_option enable_web_player true)"
-export ENABLE_SSML="$(get_option enable_ssml true)"
+DEFAULT_VOICE="$(get_option default_voice am_fenrir)"
+ENABLE_WEB_PLAYER="$(get_option enable_web_player true)"
+ENABLE_SSML="$(get_option enable_ssml true)"
+export DEFAULT_VOICE ENABLE_WEB_PLAYER ENABLE_SSML
 
 cd /app
 exec /app/entrypoint.sh

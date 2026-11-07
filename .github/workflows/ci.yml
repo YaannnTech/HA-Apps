@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint and consistency
+    runs-on: ubuntu-latest
+    outputs:
+      all: ${{ steps.changed.outputs.all }}
+      apps: ${{ steps.changed.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Find the base commit
+        id: base
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          base="${PR_BASE:-${PUSH_BEFORE:-}}"
+          # A new branch or a manual run has no base: Check and build everything.
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then base=""; fi
+          echo "sha=$base" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: "3.13"
+
+      - name: Install tools
+        run: pip install --disable-pip-version-check pyyaml==6.0.3 awesomeversion==25.8.0 ruff==0.17.2
+
+      - name: Whitespace
+        if: steps.base.outputs.sha != ''
+        run: git diff --check "${{ steps.base.outputs.sha }}" HEAD
+
+      - name: ShellCheck
+        run: |
+          status=0
+          for f in $(git ls-files '*.sh'); do
+            # The Supervisor's bashio shebang is bash underneath.
+            case "$(head -n 1 "$f")" in
+              *bashio*|*bash*) shell="bash" ;;
+              *) shell="sh" ;;
+            esac
+            shellcheck --shell="$shell" "$f" || status=1
+          done
+          exit "$status"
+
+      - name: Hadolint
+        run: |
+          git ls-files -z '*/Dockerfile' \
+            | xargs -0 docker run --rm -v "$PWD:/repo:ro" -w /repo hadolint/hadolint:v2.12.0 hadolint
+
+      - name: Ruff
+        run: git ls-files -z '*.py' | xargs -0 ruff check
+
+      - name: App consistency
+        run: python .github/scripts/check_apps.py check --base "${{ steps.base.outputs.sha }}"
+
+      - name: Changed apps
+        id: changed
+        env:
+          BASE: ${{ steps.base.outputs.sha }}
+        run: |
+          echo "all=$(python .github/scripts/check_apps.py changed)" >> "$GITHUB_OUTPUT"
+          echo "apps=$(python .github/scripts/check_apps.py changed --base "$BASE")" >> "$GITHUB_OUTPUT"
+
+  app-linter:
+    name: App linter (${{ matrix.app }})
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.lint.outputs.all) }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: frenck/action-addon-linter@v2.21.1
+        with:
+          path: ./${{ matrix.app }}
+
+  build:
+    name: Build (${{ matrix.app }})
+    needs: lint
+    if: needs.lint.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.lint.outputs.apps) }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: "3.13"
+      - run: pip install --disable-pip-version-check pyyaml==6.0.3
+      # Builds run the Dockerfiles' own checks, e.g. that every sed patch still applies.
+      - name: Docker build (amd64)
+        run: |
+          args="$(python .github/scripts/check_apps.py build-args "${{ matrix.app }}" amd64)"
+          # shellcheck disable=SC2086
+          docker build $args -t "test/${{ matrix.app }}" "${{ matrix.app }}"

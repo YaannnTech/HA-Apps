@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## What this repository is
 
-A Home Assistant app repository (formerly "add-on" repository; use "app" in all user-facing text). `repository.yaml` names the repository; each top-level folder is one app that the Supervisor builds locally from its `Dockerfile`. There is no build system, test suite or CI here: apps are wrappers around an upstream program, and verification is done by building and running the image with Docker.
+A Home Assistant app repository (formerly "add-on" repository; use "app" in all user-facing text). `repository.yaml` names the repository; each top-level folder is one app that the Supervisor builds locally from its `Dockerfile`. There is no build system or test suite here: Apps are wrappers around an upstream program, and verification is done by building and running the image with Docker. CI (see below) lints every push and pull request and builds the changed apps.
 
 | App | Upstream | How it wraps it |
 | --- | --- | --- |
@@ -24,7 +24,8 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 ## Versioning
 
 - Apps wrapping an upstream release use the upstream version plus a fourth component: `7.9.3.1` = upstream 7.9.3, first app build. Reset the last digit to `.1` when upstream changes.
-- `phoneblock_dongle` follows the PhoneBlock firmware version, with the app build after a dash: `1.7.0-beta7-1` = package `1.7.0~beta7`, first app build; a stable release becomes `1.7.0.1` under the rule above. A fourth dot component on a pre-release (`1.7.0-beta7.1`) does not sort correctly in AwesomeVersion; the dash form does, including the step to `1.7.0.1`. Use the dash only on pre-releases: on a stable version, `7.9.5-1` is a semver pre-release that sorts below `7.9.5`, and `7.9.5-10` sorts below `7.9.5-9`.
+- `phoneblock_dongle` follows the PhoneBlock firmware version, with the app build after a dash: `1.7.0-beta7-1` = package `1.7.0~beta7`, first app build; a stable release becomes `1.7.0.1` under the rule above. A fourth dot component on a pre-release (`1.7.0-beta7.1`) does not sort correctly in AwesomeVersion; the dash form does, including the step to `1.7.0.1`. Use the dash only on pre-releases: On a stable version, `7.9.5-1` is a semver pre-release that sorts below `7.9.5`, and `7.9.5-10` sorts below `7.9.5-9`.
+- PhoneBlock renumbered the 1.7.0 line to 2.0.0 (haumacher/phoneblock#719): After `1.7.0-beta9-1` come `2.0.0-betaN-1` or `2.0.0.1`, and both sort above it.
 - `tuya_ipc_bridge` has its own semver (`0.9.3`).
 - The Supervisor compares versions with AwesomeVersion; check that a new scheme still sorts above the installed one.
 
@@ -40,6 +41,16 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 - **mawk:** Debian's `awk` is mawk, which holds back piped input; the live log filter in `run.sh` uses `mawk -W interactive`.
 - **Dynamic Ingress ports:** `phoneblock_dongle` and `tuya_ipc_bridge` use `host_network: true` with `ingress_port: 0`; `run.sh` reads the real port (and the slug, which the Supervisor prefixes with a repository hash) from `/addons/self/info`. Notification links use `/app/<slug>`.
 - **Tuya base image:** `tuya_ipc_bridge/build.yaml` sets `BUILD_FROM` per architecture (`hassio-addons/base`); armv7 was dropped because that base is no longer published for it.
+
+## CI
+
+`.github/workflows/ci.yml` runs on pushes to `main`, pull requests and manual runs:
+
+- `git diff --check`, ShellCheck on every `*.sh` (bash for bashio shebangs), Hadolint on every Dockerfile (accepted rules in `.hadolint.yaml`, each with its reason), `ruff check` on every `*.py`.
+- `.github/scripts/check_apps.py check`: Translation labels match the options, the first CHANGELOG entry is the config version, the version matches the upstream pin (`UPSTREAM_PINS`), a changed version sorts higher in AwesomeVersion, and a warning when image files changed without a version bump.
+- Frenck's app linter on every app, and an amd64 `docker build` of each app whose image files changed (all apps on a manual run), with build args from `build.yaml`.
+
+Tool versions are pinned in the workflow. Locally, the same checks run in a throwaway `python:3.13-alpine` container with the pinned packages. A new app that pins an upstream version needs an entry in `UPSTREAM_PINS`.
 
 ## Building and running locally
 

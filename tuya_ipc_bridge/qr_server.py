@@ -83,6 +83,7 @@ def run_password_job(job_id, region, email, password):
         proc = subprocess.run(
             ["/usr/bin/add_account.exp", region, email, password],
             capture_output=True,
+            check=False,
             text=True,
             timeout=90,
         )
@@ -104,6 +105,7 @@ def get_auth_list():
         result = subprocess.run(
             ["tuya-ipc-terminal", "auth", "list"],
             capture_output=True,
+            check=False,
             text=True,
             timeout=15,
         )
