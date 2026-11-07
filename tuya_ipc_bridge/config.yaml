@@ -7,7 +7,6 @@ arch:
   - amd64
   - aarch64
 startup: services
-boot: auto
 init: false
 host_network: true
 ingress: true

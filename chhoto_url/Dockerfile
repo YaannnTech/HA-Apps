@@ -30,6 +30,12 @@ COPY rootfs /
 
 RUN chmod a+x /run.sh
 
+# Home Assistant shows the app as started once this passes, and its watchdog
+# restarts the app when it turns unhealthy. Upstream serves the check, which
+# includes the database, on an internal port (see its deploy/compose.yaml).
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+	CMD wget -q -O /dev/null http://127.0.0.1:1729/healthz || exit 1
+
 # Replaces the base image's own ENTRYPOINT (/app/chhoto-url) so options can be
 # translated into env vars first; run.sh execs the original binary at the end.
 ENTRYPOINT ["/run.sh"]

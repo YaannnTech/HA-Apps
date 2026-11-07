@@ -1,3 +1,7 @@
+# 0.9.2.2
+
+- Home Assistant now checks the app's health with a Docker health check on `/health`. The app shows as started once the model is loaded, and with **Watchdog** on, Home Assistant restarts it when it turns unhealthy. The health checks stay out of the log unless API Log Level is Debug.
+
 # 0.9.2.1
 
 - Update Kokoro-FastAPI to [v0.9.2](https://github.com/remsky/Kokoro-FastAPI/releases/tag/v0.9.2): The health check and voice list stay responsive during generation, words around an unspaced ellipsis are read as words instead of spelled out, and `1,5s` reads as "one point five seconds". A sentence that fails to generate now fails the request instead of going silently missing.

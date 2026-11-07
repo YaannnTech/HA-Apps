@@ -1,3 +1,8 @@
+# 7.10.8.2
+
+- Home Assistant now checks the app's health with upstream's own health check, which includes the database, instead of only testing that the port answers. The app shows as started once it is healthy, and with **Watchdog** on, Home Assistant restarts it when it turns unhealthy.
+- Drop the `armv7` architecture, which Home Assistant no longer supports since 2025.12.
+
 # 7.10.8.1
 
 - Update Chhoto URL to upstream release 7.10.8 (includes 7.9.6 to 7.10.7): links can be enabled and disabled, many frontend improvements (mobile view, tooltips, info dialog), custom certificates for OIDC, a faster database layer, and fixes for expiry times and public mode caching.
