@@ -66,9 +66,11 @@ if [ -n "$api_key" ]; then
 fi
 
 # Upstream generates a new session key on every start, logging everyone out; keep one in /data instead.
+# Upstream reads it as URL-safe base64 without padding. Keys from app 7.9.5.1 are hex, which is also
+# valid base64 (96 bytes), so they are kept.
 session_key_file=/data/session_master_key
 if [ ! -s "$session_key_file" ]; then
-	(umask 077 && od -An -vtx1 -N64 /dev/urandom | tr -d ' \n' >"$session_key_file")
+	(umask 077 && head -c 64 /dev/urandom | base64 -w 0 | tr '+/' '-_' | tr -d '=' >"$session_key_file")
 fi
 export CHHOTO_SESSION_MASTER_KEY
 CHHOTO_SESSION_MASTER_KEY="$(cat "$session_key_file")"

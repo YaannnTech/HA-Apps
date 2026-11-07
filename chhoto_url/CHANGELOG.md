@@ -1,3 +1,11 @@
+# 7.10.8.1
+
+- Update Chhoto URL to upstream release 7.10.8 (includes 7.9.6 to 7.10.7): links can be enabled and disabled, many frontend improvements (mobile view, tooltips, info dialog), custom certificates for OIDC, a faster database layer, and fixes for expiry times and public mode caching.
+- Upstream reworked its login cookies, so you have to log in to the admin page once after this update. Logins then survive app restarts and updates again.
+- The database is migrated to a new format on the first start, and upstream backs it up first (in `backups` next to the database, now named with a timestamp). Older app versions cannot read the migrated database, so restore an app backup if you need to go back.
+- New installs generate the session key in the base64 format upstream now expects; existing keys keep working.
+- Upstream checks the **API Key** differently now: a short or simple key logs "Provided API key is insecure" on start, and the log suggests a secure key you can use instead. The key keeps working either way.
+
 # 7.9.5.1
 
 - Update Chhoto URL to upstream release 7.9.5 (includes 7.9.4): more robust cleanup of expired links, and no plaintext-password warning in the log when neither a password nor an API key is set.
