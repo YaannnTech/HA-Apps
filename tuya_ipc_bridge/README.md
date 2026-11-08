@@ -2,7 +2,7 @@
 
 Bridges Tuya Smart / Smart Life cameras' IPC streams to standard RTSP, so they can be added to Home Assistant like any other RTSP camera — via the built-in **generic camera** platform or **go2rtc**.
 
-Built by wrapping [tuya-ipc-terminal](https://github.com/seydx/tuya-ipc-terminal) by seydx, a Go CLI that authenticates with Tuya's cloud, discovers your cameras, and does the actual bridging. The app currently builds from a [fork](https://github.com/YaannnTech/tuya-ipc-terminal/tree/fix/rtsp-stream-lockup) with RTSP playback fixes that have been offered upstream.
+Built by wrapping [tuya-ipc-terminal](https://github.com/seydx/tuya-ipc-terminal) by seydx, a Go CLI that authenticates with Tuya's cloud, discovers your cameras, and does the actual bridging. The app builds from the maintained [fork](https://github.com/YaannnTech/tuya-ipc-terminal), which adds RTSP and WebRTC fixes to the original project.
 
 ## Why does this exist?
 

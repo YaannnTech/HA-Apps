@@ -11,7 +11,7 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 | `chhoto_url` | `sintan1729/chhoto-url` image | `FROM` the upstream `-alpine` image, sed-patches the minified frontend, `rootfs/run.sh` maps options to `CHHOTO_*` env vars and `exec`s `/app/chhoto-url` |
 | `kokoro_fastapi` | `ghcr.io/remsky/kokoro-fastapi-cpu` image | `rootfs/run.sh` maps options to env vars, then `exec`s upstream's `/app/entrypoint.sh` |
 | `phoneblock_dongle` | package `phoneblock-dongle` from the upstream APT repository (haumacher/phoneblock) | installs the pinned package on Home Assistant's Debian base image, runs it behind nginx for Ingress |
-| `tuya_ipc_bridge` | branch `fix/rtsp-stream-lockup` of the YaannnTech/tuya-ipc-terminal fork | multi-stage Go build with sed patches; `run.sh` supervises the RTSP server, `qr_server.py` is the Ingress login UI |
+| `tuya_ipc_bridge` | a pinned commit of `main` of the YaannnTech/tuya-ipc-terminal fork (`TUYA_IPC_TERMINAL_REF` in `build.yaml` and the Dockerfile, keep both equal) | multi-stage Go build with one sed patch (QR login URL); `run.sh` supervises the RTSP server, `qr_server.py` is the Ingress login UI |
 
 ## Anatomy of an app
 
@@ -62,8 +62,8 @@ Build for the host's architecture (`aarch64` on arm64 hosts, `amd64` otherwise);
 docker build -t <app>-test --build-arg BUILD_VERSION=<version> --build-arg BUILD_ARCH=aarch64 <app>/
 
 # tuya_ipc_bridge needs its base image passed in
-docker build -t tuya-test --build-arg BUILD_FROM=ghcr.io/hassio-addons/base/aarch64:21.0.8 \
-  --build-arg TUYA_IPC_TERMINAL_REF=fix/rtsp-stream-lockup tuya_ipc_bridge/
+docker build -t tuya-test --build-arg BUILD_FROM=ghcr.io/hassio-addons/base/aarch64:21.0.10 \
+  --build-arg TUYA_IPC_TERMINAL_REF=<commit> tuya_ipc_bridge/
 
 # Run the way the Supervisor does: options.json in a mounted /data
 mkdir -p /tmp/appdata && echo '{"api_log_level":"Info", ...}' > /tmp/appdata/options.json

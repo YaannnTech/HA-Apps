@@ -1,3 +1,15 @@
+# 0.9.4
+
+- Build from the `main` branch of the maintained [tuya-ipc-terminal fork](https://github.com/YaannnTech/tuya-ipc-terminal), pinned to a commit. It adds:
+  - `/sd` streams no longer hang on cameras whose SD stream is H.264.
+  - A camera that never finishes the WebRTC handshake now fails after 30 s instead of leaving the stream stuck, and the RTSP server no longer hangs on shutdown while such a camera is still starting.
+  - A failed or lost camera connection is cleaned up completely and closes its RTSP sessions, so players and NVRs reconnect instead of waiting for a stream that never comes.
+  - Disconnected RTSP clients are dropped right away instead of flooding the log, and a client that stops reading no longer stalls the others.
+  - A `brazil` region and a `--country-code` option for password login.
+  - Updated dependencies (pion WebRTC, paho MQTT, `golang.org/x`), which fixes the known vulnerabilities in code paths the bridge uses.
+- Drop the two source patches for the RTSP forwarder log flood and the dead-client cleanup: the fork now fixes both properly.
+- Build with Go 1.26 and update the app base image to 21.0.10.
+
 # 0.9.3
 
 - **Breaking**: drop `armv7` support. The Home Assistant app base image is no longer published for `armv7`; existing `armv7` installations stay on 0.9.2.

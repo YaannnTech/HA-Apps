@@ -1,10 +1,11 @@
 # Declared before the first FROM so it's usable in both FROM lines below
 ARG BUILD_FROM
 
-# Build stage: compile tuya-ipc-terminal from the YaannnTech fork
-FROM golang:1.23-alpine AS builder
+# Build stage: compile tuya-ipc-terminal from the YaannnTech fork, pinned to a
+# commit so the same app version always builds the same code
+FROM golang:1.26-alpine AS builder
 
-ARG TUYA_IPC_TERMINAL_REF=fix/rtsp-stream-lockup
+ARG TUYA_IPC_TERMINAL_REF=2c029609c708cfe7d06a0cdc2d8e4990e832b5b5
 ARG TUYA_IPC_TERMINAL_REPO=https://github.com/YaannnTech/tuya-ipc-terminal.git
 RUN apk add --no-cache git sed
 
@@ -18,24 +19,6 @@ RUN git init \
 # text so the ingress web UI can render it as a real, scannable QR image.
 RUN sed -i 's#\(qrterminal\.Generate("tuyaSmart--qrLogin?token="+qrCodeToken, qrterminal\.L, os\.Stdout)\)#fmt.Println("QR_LOGIN_URL:tuyaSmart--qrLogin?token=" + qrCodeToken)\n\t\1#' cmd/auth/auth.go \
     && grep -q 'QR_LOGIN_URL:' cmd/auth/auth.go
-
-# Upstream logs a packet-forwarding error at ERROR level for every single RTP packet
-# still queued for a client that already disconnected (and never marks it inactive,
-# since lastActivity is bumped regardless of write success) - downgrade to Trace so a
-# disconnected RTSP client doesn't flood the log until the next reconnect/cleanup.
-RUN sed -i \
-    -e 's#core\.Logger\.Error()\.Err(err)\.Msgf("Error forwarding video packet to UDP client %s", sessionID)#core.Logger.Trace().Err(err).Msgf("Error forwarding video packet to UDP client %s", sessionID)#' \
-    -e 's#core\.Logger\.Error()\.Err(err)\.Msgf("Error forwarding video packet to TCP client %s", sessionID)#core.Logger.Trace().Err(err).Msgf("Error forwarding video packet to TCP client %s", sessionID)#' \
-    -e 's#core\.Logger\.Error()\.Err(err)\.Msgf("Error forwarding audio packet to UDP client %s", sessionID)#core.Logger.Trace().Err(err).Msgf("Error forwarding audio packet to UDP client %s", sessionID)#' \
-    -e 's#core\.Logger\.Error()\.Err(err)\.Msgf("Error forwarding audio packet to TCP client %s", sessionID)#core.Logger.Trace().Err(err).Msgf("Error forwarding audio packet to TCP client %s", sessionID)#' \
-    pkg/rtsp/forwarder.go \
-    && ! grep -q 'Logger\.Error()\.Err(err)\.Msgf("Error forwarding' pkg/rtsp/forwarder.go
-
-# The RTSP read loop only notices a dead client via a 60s read deadline, so a failed
-# write otherwise keeps repeating for up to 60s before cleanup runs; closing the
-# connection on the first failed write unblocks that read loop immediately instead.
-RUN sed -i '/if _, err := conn.Write(fullPacket); err != nil {/a\            conn.Close()' pkg/rtsp/forwarder.go \
-    && grep -A1 'if _, err := conn.Write(fullPacket); err != nil {' pkg/rtsp/forwarder.go | grep -q 'conn.Close()'
 
 RUN go mod download
 RUN CGO_ENABLED=0 go build -o /out/tuya-ipc-terminal .

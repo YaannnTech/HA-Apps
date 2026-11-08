@@ -1,8 +1,8 @@
 build_from:
-  aarch64: "ghcr.io/hassio-addons/base/aarch64:21.0.8"
-  amd64: "ghcr.io/hassio-addons/base/amd64:21.0.8"
+  aarch64: "ghcr.io/hassio-addons/base/aarch64:21.0.10"
+  amd64: "ghcr.io/hassio-addons/base/amd64:21.0.10"
 args:
-  TUYA_IPC_TERMINAL_REF: "fix/rtsp-stream-lockup"
+  TUYA_IPC_TERMINAL_REF: "2c029609c708cfe7d06a0cdc2d8e4990e832b5b5"
 labels:
   org.opencontainers.image.source: "https://github.com/YaannnTech/tuya-ipc-terminal"
   org.opencontainers.image.description: "Home Assistant app wrapping tuya-ipc-terminal"
