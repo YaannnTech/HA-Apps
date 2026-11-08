@@ -1,3 +1,8 @@
+# 0.10.0.1
+
+- Update Kokoro-FastAPI to [v0.10.0](https://github.com/remsky/Kokoro-FastAPI/releases/tag/v0.10.0): Memory no longer keeps growing with every new text length, because the CPU image now uses the jemalloc memory allocator (remsky/Kokoro-FastAPI#594), and it is returned to the system when the app is idle.
+- Also new upstream: websocket and OpenAI Realtime compatible endpoints for voice agents, and the OpenAI voice names marin, cedar, verse and ballad. Optional API keys exist upstream but are not exposed as an app option.
+
 # 0.9.2.2
 
 - Home Assistant now checks the app's health with a Docker health check on `/health`. The app shows as started once the model is loaded, and with **Watchdog** on, Home Assistant restarts it when it turns unhealthy. The health checks stay out of the log unless API Log Level is Debug.

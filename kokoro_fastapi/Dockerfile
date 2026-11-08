@@ -1,4 +1,4 @@
-FROM ghcr.io/remsky/kokoro-fastapi-cpu:v0.9.2
+FROM ghcr.io/remsky/kokoro-fastapi-cpu:v0.10.0
 
 ARG BUILD_VERSION
 ARG BUILD_ARCH
