@@ -1,3 +1,8 @@
+# 0.9.5
+
+- The login page now offers the regions of the bundled tuya-ipc-terminal, including **brazil**, with a short description of each (e.g. "us-west - West America"). Before, the page had its own list that was missing brazil.
+- Documentation: most accounts in the Americas are in **us-west**, and a QR code from the wrong region scans without an error but never completes the login.
+
 # 0.9.4
 
 - Build from the `main` branch of the maintained [tuya-ipc-terminal fork](https://github.com/YaannnTech/tuya-ipc-terminal), pinned to a commit. It adds:

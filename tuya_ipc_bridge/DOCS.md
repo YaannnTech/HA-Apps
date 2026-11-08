@@ -17,7 +17,7 @@ QR-code login and email/password login, plus a live list of currently authentica
 
 In the Web UI, under **Add account via QR code**:
 
-1. Select the account's region and enter its email.
+1. Select the account's region and enter its email. The region is the Tuya data center of the account, not where you live: most accounts in the Americas are in **us-west** (West America), and Brazilian accounts use **brazil**. If the QR login never completes after scanning, try another region.
 2. Click **Start QR login** — a real, scannable QR code appears in the page (rendered
    by the app itself; the login URL is never sent to a third-party QR service).
 3. Scan it with the Tuya Smart / Smart Life app. The page polls automatically and shows
@@ -54,7 +54,7 @@ streams:
 ## Troubleshooting
 
 - Check the app log — authentication and camera discovery output is printed on every start.
-- If login keeps failing, verify the account/region/password.
+- If login keeps failing, verify the account/region/password. A QR code from the wrong region scans without an error but the login never completes.
 - If cameras don't appear, confirm they're online in the Tuya Smart / Smart Life / other Tuya variant app first.
 
 ## Limitations

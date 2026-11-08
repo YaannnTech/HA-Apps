@@ -14,7 +14,37 @@ from urllib.parse import parse_qs
 import qrcode
 import qrcode.image.svg
 
-REGIONS = ["eu-central", "eu-east", "us-west", "us-east", "china", "india"]
+# Used when "auth show-regions" cannot be read; the binary's list wins.
+FALLBACK_REGIONS = {
+    "eu-central": "Central Europe",
+    "eu-east": "East Europe",
+    "us-west": "West America",
+    "us-east": "East America",
+    "china": "China",
+    "india": "India",
+    "brazil": "Brazil (West America data center)",
+}
+REGION_LINE_RE = re.compile(r"^(\S+)\s+(\S+\.ismartlife\.me)\s+(.+?)\s*$")
+
+
+def load_regions():
+    """Read the regions from the binary, so the form offers exactly what it supports."""
+    try:
+        out = subprocess.run(
+            ["tuya-ipc-terminal", "auth", "show-regions"],
+            capture_output=True, text=True, timeout=10, check=False,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return dict(FALLBACK_REGIONS)
+    regions = {}
+    for line in out.splitlines():
+        match = REGION_LINE_RE.match(line)
+        if match:
+            regions[match.group(1)] = match.group(3)
+    return regions or dict(FALLBACK_REGIONS)
+
+
+REGIONS = load_regions()
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
@@ -131,7 +161,10 @@ PAGE_TAIL = "</body></html>"
 
 
 def render_index(base):
-    options = "".join(f'<option value="{r}">{r}</option>' for r in REGIONS)
+    options = "".join(
+        f'<option value="{html.escape(name)}">{html.escape(name)} - {html.escape(desc)}</option>'
+        for name, desc in REGIONS.items()
+    )
     accounts = html.escape(get_auth_list())
     return (
         PAGE_HEAD
