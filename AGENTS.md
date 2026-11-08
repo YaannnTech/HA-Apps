@@ -25,7 +25,7 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 
 - Apps wrapping an upstream release use the upstream version plus a fourth component: `7.9.3.1` = upstream 7.9.3, first app build. Reset the last digit to `.1` when upstream changes.
 - `phoneblock_dongle` follows the PhoneBlock firmware version, with the app build after a dash: `1.7.0-beta7-1` = package `1.7.0~beta7`, first app build; a stable release becomes `1.7.0.1` under the rule above. A fourth dot component on a pre-release (`1.7.0-beta7.1`) does not sort correctly in AwesomeVersion; the dash form does, including the step to `1.7.0.1`. Use the dash only on pre-releases: On a stable version, `7.9.5-1` is a semver pre-release that sorts below `7.9.5`, and `7.9.5-10` sorts below `7.9.5-9`.
-- PhoneBlock renumbered the 1.7.0 line to 2.0.0 (haumacher/phoneblock#719): After `1.7.0-beta9-1` come `2.0.0-betaN-1` or `2.0.0.1`, and both sort above it.
+- PhoneBlock renumbered the 1.7.0 line to 2.0.0 (haumacher/phoneblock#719): After `1.7.0-beta9-1` come `2.0.0-betaN-1`, `2.0.0-rcN-1` (first: `2.0.0-rc1-1`) or `2.0.0.1`, and all sort above it.
 - `tuya_ipc_bridge` has its own semver (`0.9.3`).
 - The Supervisor compares versions with AwesomeVersion; check that a new scheme still sorts above the installed one.
 

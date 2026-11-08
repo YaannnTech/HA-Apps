@@ -1,3 +1,9 @@
+# 2.0.0-rc1-1
+
+- Update to PhoneBlock firmware 2.0.0-rc1 (package `phoneblock-dongle` 2.0.0~rc1). PhoneBlock renamed the 1.7.0 beta line to 2.0.0; settings and data are kept. Firmware release notes: [2.0.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/2.0.0.md).
+- Setting up the Fritz!Box telephony entry no longer hangs when the Fritz!Box asks for a second factor (2FA) (haumacher/phoneblock#722).
+- Right after an update, the web UI shows English texts instead of raw keys until the new version's language pack has arrived (haumacher/phoneblock#721).
+
 # 1.7.0-beta9-1
 
 - Update to PhoneBlock firmware 1.7.0-beta9 (package `phoneblock-dongle` 1.7.0~beta9). Firmware release notes: [1.7.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/1.7.0.md).
