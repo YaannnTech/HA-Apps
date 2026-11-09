@@ -1,3 +1,8 @@
+# 2.0.0.1
+
+- Update to PhoneBlock firmware 2.0.0 (package `phoneblock-dongle` 2.0.0), the first stable release of the 2.0.0 line. It is the same code as 2.0.0-rc1, so nothing changes in use. Firmware release notes: [2.0.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/2.0.0.md).
+- The app now installs from the stable channel of the PhoneBlock APT repository instead of the beta channel.
+
 # 2.0.0-rc1-1
 
 - Update to PhoneBlock firmware 2.0.0-rc1 (package `phoneblock-dongle` 2.0.0~rc1). PhoneBlock renamed the 1.7.0 beta line to 2.0.0; settings and data are kept. Firmware release notes: [2.0.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/2.0.0.md).

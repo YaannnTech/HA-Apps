@@ -1,9 +1,9 @@
 # The released Linux service from the upstream APT repository
 # (https://haumacher.github.io/phoneblock/apt/), the same package and version
 # as on a Raspberry Pi. The app version follows it (see AGENTS.md).
-ARG PHONEBLOCK_VERSION=2.0.0~rc1
+ARG PHONEBLOCK_VERSION=2.0.0
 ARG PHONEBLOCK_SUITE=trixie
-ARG PHONEBLOCK_CHANNEL=beta
+ARG PHONEBLOCK_CHANNEL=stable
 # Fingerprint of the repository's signing key, checked before it is trusted.
 ARG PHONEBLOCK_REPO_FINGERPRINT=0A1948B95F45BADD626CB753ADFAC8AA5581163F
 
