@@ -18,7 +18,7 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 - `config.yaml`: Supervisor manifest. `version` must be bumped for Home Assistant to offer an update and rebuild the image; text-only changes can ship without a bump.
 - `translations/en.yaml`: labels for the Configuration tab. Its keys must match the `schema` keys in `config.yaml` exactly (no leftovers for removed options).
 - `CHANGELOG.md`: newest version first, one entry per version bump; older entries are history and stay as written.
-- `README.md` (Info tab); `tuya_ipc_bridge` also has `DOCS.md` (Documentation tab).
+- `README.md` (Info tab); `tuya_ipc_bridge` and `phoneblock_dongle` also have `DOCS.md` (Documentation tab).
 - `run.sh` (or `rootfs/run.sh`, copied to `/run.sh`): reads `/data/options.json` (directly with jq/python, or via bashio in apps on a Home Assistant base image) and talks to the Supervisor API at `http://supervisor` with `$SUPERVISOR_TOKEN`.
 
 ## Versioning
