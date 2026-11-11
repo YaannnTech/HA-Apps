@@ -1,3 +1,10 @@
+# 2.0.1.1
+
+- Update to PhoneBlock firmware 2.0.1 (package `phoneblock-dongle` 2.0.1). Firmware release notes: [2.0.1](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/2.0.1.md).
+- Fix the TLS error "TLS handshake failed: -0x7080" that appeared since 2.0.0: Status mails reach Proton, t-online and other mail servers with a large certificate chain again, and SIP over TLS is protected the same way (haumacher/phoneblock#734).
+- A SIP registrar that sends a very long nonce (more than about 160 characters) no longer fails the login (haumacher/phoneblock#726).
+- The Fritz!Box two-factor hint during the automatic setup reads as one sentence again (haumacher/phoneblock#739).
+
 # 2.0.0.1
 
 - Update to PhoneBlock firmware 2.0.0 (package `phoneblock-dongle` 2.0.0), the first stable release of the 2.0.0 line. It is the same code as 2.0.0-rc1, so nothing changes in use. Firmware release notes: [2.0.0](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/2.0.0.md).
