@@ -36,16 +36,28 @@ fi
 
 config_source="${CONFIG_FILE}"
 [ -f "${config_source}" ] || config_source=/dev/null
+# Older app versions wrote their settings without a section header. The
+# service only reads the [phoneblock] section and keeps every other line as
+# it is, so once that section exists, the lines before the first header are
+# unused leftovers (including an old token and Fritz!Box password): Drop them.
+section_re='^[[:space:]]*\[phoneblock\][[:space:]]*$'
+drop_legacy=""
+legacy_lines=0
+if grep -q "${section_re}" "${config_source}"; then
+    drop_legacy=1
+    legacy_lines="$(awk '/^[[:space:]]*\[/ { exit } NF { n++ } END { print n + 0 }' "${config_source}")"
+fi
 # Empty values remove the key, so clearing an option restores auto-detection.
 # The token is the exception: An empty option keeps the stored, linked token.
 ( umask 077; PB_TOKEN="${phoneblock_token}" PB_CONTACT_HOST="${contact_host}" \
-PB_CONTACT_PORT="${contact_port}" PB_HOST_TZ="${host_tz}" awk '
+PB_CONTACT_PORT="${contact_port}" PB_HOST_TZ="${host_tz}" PB_DROP_LEGACY="${drop_legacy}" awk '
     BEGIN {
         n = split("pb_token contact_host contact_port", keys, " ")
         vals["pb_token"] = ENVIRON["PB_TOKEN"]
         vals["contact_host"] = ENVIRON["PB_CONTACT_HOST"]
         vals["contact_port"] = ENVIRON["PB_CONTACT_PORT"]
         host_tz = ENVIRON["PB_HOST_TZ"]
+        drop_legacy = ENVIRON["PB_DROP_LEGACY"]
     }
     function emit(  i) {
         if (done) return
@@ -57,7 +69,9 @@ PB_CONTACT_PORT="${contact_port}" PB_HOST_TZ="${host_tz}" awk '
         if (in_section) emit()
         in_section = ($0 ~ /^[[:space:]]*\[phoneblock\][[:space:]]*$/)
         seen = seen || in_section
+        any_header = 1
     }
+    !any_header && drop_legacy != "" { next }
     in_section && /^(contact_host|contact_port)=/ { next }
     in_section && /^pb_token=/ && vals["pb_token"] != "" { next }
     in_section && /^timezone=/ { have_tz = 1 }
@@ -69,10 +83,22 @@ PB_CONTACT_PORT="${contact_port}" PB_HOST_TZ="${host_tz}" awk '
 ' "${config_source}" > "${CONFIG_FILE}.new" )
 mv "${CONFIG_FILE}.new" "${CONFIG_FILE}"
 bashio::log.info "Applied the app configuration"
+if [ "${legacy_lines}" -gt 0 ]; then
+    bashio::log.info "Removed ${legacy_lines} unused settings lines of an older app version from ${CONFIG_FILE}"
+fi
 
-sip_host="$(sed -n 's/^sip_host=//p' "${CONFIG_FILE}")"
-sip_port="$(sed -n 's/^sip_port=//p' "${CONFIG_FILE}")"
-sip_user="$(sed -n 's/^sip_user=//p' "${CONFIG_FILE}")"
+# Read a key the way the service does: Only from the [phoneblock] section.
+config_value() {
+    # Via ENVIRON, since awk -v would turn the regex's \[ into [.
+    PB_SECTION_RE="${section_re}" awk -v key="$1" '
+        /^[[:space:]]*\[/ { in_section = ($0 ~ ENVIRON["PB_SECTION_RE"]); next }
+        in_section && index($0, key "=") == 1 { value = substr($0, length(key) + 2) }
+        END { print value }
+    ' "${CONFIG_FILE}"
+}
+sip_host="$(config_value sip_host)"
+sip_port="$(config_value sip_port)"
+sip_user="$(config_value sip_user)"
 
 bashio::log.info "Starting PhoneBlock Dongle SIP service"
 bashio::log.info "SIP config: host=${sip_host} port=${sip_port} user=${sip_user}"
