@@ -1,3 +1,12 @@
+# 0.10.0
+
+- Build from the first release of the maintained [tuya-ipc-terminal fork](https://github.com/YaannnTech/tuya-ipc-terminal), v0.1.0 (commit `c095fa9`), and update the app base image to 21.0.11. The release adds:
+  - More camera types are discovered: additional Tuya camera categories and ksdjml (video peephole) cameras.
+  - Pending Tuya API requests are cancelled when the bridge stops, so it shuts down cleanly.
+  - Video RTP timestamps are corrected (they were inflated), which helps players and NVRs that are strict about timing.
+  - The camera speaker is unmuted for talkback.
+  - New options in the CLI: an RTSP listen address and opt-in LAN HD HEVC streaming. This app does not expose them yet and keeps the previous behavior.
+
 # 0.9.5
 
 - The login page now offers the regions of the bundled tuya-ipc-terminal, including **brazil**, with a short description of each (e.g. "us-west - West America"). Before, the page had its own list that was missing brazil.

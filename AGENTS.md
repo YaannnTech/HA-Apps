@@ -62,7 +62,7 @@ Build for the host's architecture (`aarch64` on arm64 hosts, `amd64` otherwise);
 docker build -t <app>-test --build-arg BUILD_VERSION=<version> --build-arg BUILD_ARCH=aarch64 <app>/
 
 # tuya_ipc_bridge needs its base image passed in
-docker build -t tuya-test --build-arg BUILD_FROM=ghcr.io/hassio-addons/base/aarch64:21.0.10 \
+docker build -t tuya-test --build-arg BUILD_FROM=ghcr.io/hassio-addons/base/aarch64:21.0.11 \
   --build-arg TUYA_IPC_TERMINAL_REF=<commit> tuya_ipc_bridge/
 
 # Run the way the Supervisor does: options.json in a mounted /data
