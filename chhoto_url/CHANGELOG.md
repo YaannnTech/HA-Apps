@@ -1,3 +1,11 @@
+# 7.11.3.1
+
+- Update Chhoto URL to upstream release 7.11.3 (includes 7.11.0 to 7.11.2): a **Public Site URL** without a scheme but with a port (for example `s.example.com:4567`) is handled now ([#156](https://github.com/SinTan1729/chhoto-url/issues/156)).
+- The link handler answers HEAD requests, notes and search support Unicode better, and the frontend no longer has a race condition for the site URL.
+- Upstream hardened the backend after security reports: an invalid password or API key hash now stops the server instead of leaving it without a login.
+- Upstream also limits the number of spawned threads, allows adding several links in one request only with the API key (at most 2000 links), and sizes the number of parallel password checks to the memory available to the container.
+- Upstream's health check was reworked; the app's health check still works and the app reports as healthy.
+
 # 7.10.8.2
 
 - Home Assistant now checks the app's health with upstream's own health check, which includes the database, instead of only testing that the port answers. The app shows as started once it is healthy, and with **Watchdog** on, Home Assistant restarts it when it turns unhealthy.
