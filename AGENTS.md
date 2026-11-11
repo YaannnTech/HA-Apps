@@ -11,7 +11,7 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 | `chhoto_url` | `sintan1729/chhoto-url` image | `FROM` the upstream `-alpine` image, sed-patches the minified frontend, `rootfs/run.sh` maps options to `CHHOTO_*` env vars and `exec`s `/app/chhoto-url` |
 | `kokoro_fastapi` | `ghcr.io/remsky/kokoro-fastapi-cpu` image | `rootfs/run.sh` maps options to env vars, then `exec`s upstream's `/app/entrypoint.sh` |
 | `phoneblock_dongle` | package `phoneblock-dongle` from the upstream APT repository (haumacher/phoneblock) | installs the pinned package on Home Assistant's Debian base image, runs it behind nginx for Ingress |
-| `tuya_ipc_bridge` | a pinned commit of `main` of the YaannnTech/tuya-ipc-terminal fork (`TUYA_IPC_TERMINAL_REF` in `build.yaml` and the Dockerfile, keep both equal) | multi-stage Go build with one sed patch (QR login URL); `run.sh` supervises the RTSP server, `qr_server.py` is the Ingress login UI |
+| `tuya_ipc_bridge` | a pinned commit of the YaannnTech/tuya-ipc-terminal fork, a release since app 0.10.0 (`TUYA_IPC_TERMINAL_REF` in `build.yaml` and the Dockerfile, keep both equal) | multi-stage Go build with one sed patch (QR login URL); `run.sh` supervises the RTSP server, `qr_server.py` is the Ingress login UI |
 
 ## Anatomy of an app
 
@@ -26,7 +26,8 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 - Apps wrapping an upstream release use the upstream version plus a fourth component: `7.9.3.1` = upstream 7.9.3, first app build. Reset the last digit to `.1` when upstream changes.
 - `phoneblock_dongle` follows the PhoneBlock firmware version, with the app build after a dash: `1.7.0-beta7-1` = package `1.7.0~beta7`, first app build; a stable release becomes `1.7.0.1` under the rule above. A fourth dot component on a pre-release (`1.7.0-beta7.1`) does not sort correctly in AwesomeVersion; the dash form does, including the step to `1.7.0.1`. Use the dash only on pre-releases: On a stable version, `7.9.5-1` is a semver pre-release that sorts below `7.9.5`, and `7.9.5-10` sorts below `7.9.5-9`.
 - PhoneBlock renumbered the 1.7.0 line to 2.0.0 (haumacher/phoneblock#719): After `1.7.0-beta9-1` come `2.0.0-betaN-1`, `2.0.0-rcN-1` (first: `2.0.0-rc1-1`) or `2.0.0.1`, and all sort above it.
-- `tuya_ipc_bridge` has its own semver (`0.9.3`).
+- `tuya_ipc_bridge` keeps its own semver while the YaannnTech/tuya-ipc-terminal fork is on 0.x: The upstream-plus-fourth-digit form (`0.1.0.1`) would sort below the installed `0.9.5`, so the Supervisor would never offer it. App `0.10.0` builds fork `v0.1.0`; each new fork release gets the next app minor version (fork `v0.2.0` -> app `0.11.0`), app-only changes a patch bump (`0.10.1`). Every CHANGELOG entry names the fork release it builds.
+- When the fork releases `v1.0.0`, `tuya_ipc_bridge` switches to the normal scheme (`1.0.0.1` = fork 1.0.0, first app build), which sorts above every 0.x version. Then add a comment with the release tag next to `TUYA_IPC_TERMINAL_REF` and a `tuya_ipc_bridge` entry in `UPSTREAM_PINS` in `.github/scripts/check_apps.py`.
 - The Supervisor compares versions with AwesomeVersion; check that a new scheme still sorts above the installed one.
 
 ## Cross-file details that are easy to break
