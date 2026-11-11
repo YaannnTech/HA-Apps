@@ -1,3 +1,13 @@
+# 0.11.0
+
+- Build from fork release v0.2.0 (commit `655cb01`). It adds:
+  - Known Chinese Tuya error messages get an English explanation next to the original text.
+  - A failed password login, or a password login without cameras, points to QR login (password login does not work for OEM accounts such as LittleElf).
+  - Runtime errors, such as a failed login, no longer print the command usage text after the message.
+  - A rejected login token request no longer ends in a crash during password login; the Tuya error is shown instead.
+  - `TUYA_DEBUG=1` prints the login result fields (redacted) for comparing QR and password sessions. This app does not expose it yet.
+- Login page and documentation: Password login works for Tuya Smart and Smart Life accounts, not for OEM accounts (such as LittleElf and many others). Those fail with "wrong account or password" and must use the QR login, scanned with the account's own app. The password form, the QR section and the failure message now say so.
+
 # 0.10.0
 
 - Build from the first release of the maintained [tuya-ipc-terminal fork](https://github.com/YaannnTech/tuya-ipc-terminal), v0.1.0 (commit `c095fa9`), and update the app base image to 21.0.11. The release adds:

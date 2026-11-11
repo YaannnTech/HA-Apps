@@ -20,10 +20,14 @@ In the Web UI, under **Add account via QR code**:
 1. Select the account's region and enter its email. The region is the Tuya data center of the account, not where you live: most accounts in the Americas are in **us-west** (West America), and Brazilian accounts use **brazil**. If the QR login never completes after scanning, try another region.
 2. Click **Start QR login** — a real, scannable QR code appears in the page (rendered
    by the app itself; the login URL is never sent to a third-party QR service).
-3. Scan it with the Tuya Smart / Smart Life app. The page polls automatically and shows
+3. Scan it with the Tuya Smart / Smart Life app, or with the OEM app the account belongs to (such as LittleElf). The page polls automatically and shows
    *success* or *error* once the login completes.
 
 > **Important**: this QR code is not a normal URL — it only works with the Tuya / Smart Life (or variants) app's own built-in QR scanner, **not** your phone's regular Camera app (which won't recognize it at all). In the app, use the scan icon on the **Me**/**Profile** tab (the same one used for "log in via QR code" on Tuya's web portal), then point it at the screen. The code also expires after about a minute, so scan it promptly after it appears.
+
+## Adding an account via email/password
+
+Password login works for Tuya Smart and Smart Life accounts. It does not work for OEM accounts (such as LittleElf and many others): they fail with "wrong account or password" even with the correct password. Use the QR login above for those and scan the code with the account's own app.
 
 ## Notifications
 
@@ -55,6 +59,7 @@ streams:
 
 - Check the app log — authentication and camera discovery output is printed on every start.
 - If login keeps failing, verify the account/region/password. A QR code from the wrong region scans without an error but the login never completes.
+- "Authentication failed" or "wrong account or password" on password login for an OEM account (such as LittleElf and many others): Password login does not work for these accounts; use QR login and scan the code with the account's own app.
 - If cameras don't appear, confirm they're online in the Tuya Smart / Smart Life / other Tuya variant app first.
 
 ## Limitations

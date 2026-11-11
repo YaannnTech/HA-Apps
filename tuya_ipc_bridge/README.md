@@ -10,7 +10,7 @@ Not all "Tuya" cameras work with the native Home Assistant Tuya integration, nor
 
 ## Highlights
 
-- **Web UI** (Ingress) for adding accounts — QR-code login or email/password
+- **Web UI** (Ingress) for adding accounts — QR-code login or email/password (OEM accounts such as LittleElf and many others: QR only)
 - Automatic camera discovery and RTSP server startup once an account is logged in.
 - Home Assistant notifications when no account is configured yet, or when a session expires and needs re-authentication.
 
