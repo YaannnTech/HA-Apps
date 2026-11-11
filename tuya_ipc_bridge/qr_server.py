@@ -127,7 +127,10 @@ def run_password_job(job_id, region, email, password):
         job["message"] = "Account added successfully."
     else:
         job["state"] = "error"
-        job["message"] = "Authentication failed. Check the email/password and try again."
+        job["message"] = (
+            "Authentication failed. Check the email/password and try again. "
+            "OEM accounts (such as LittleElf and many others) cannot use password login; use QR login."
+        )
 
 
 def get_auth_list():
@@ -172,12 +175,15 @@ def render_index(base):
         + "<h2>Authenticated accounts</h2>"
         + f"<pre>{accounts}</pre>"
         + "<h2>Add account via QR code</h2>"
+        + "<p>Scan the code with the Smart Life / Tuya Smart app or with the OEM app the account belongs to.</p>"
         + f'<form method="POST" action="{base}/qr/start">'
         + f'<label>Region <select name="region">{options}</select></label>'
         + '<label>Email <input name="email" type="email" required></label>'
         + '<button type="submit">Start QR login</button>'
         + "</form>"
-        + "<h2>Add account via email/password (likely only works for Tuya & Smart Life accounts, not any other app variants)</h2>"
+        + "<h2>Add account via email/password</h2>"
+        + "<p>Password login works for Tuya Smart and Smart Life accounts, not for OEM accounts "
+        + "(such as LittleElf and many others); those use the QR login above and scan the code with their own app.</p>"
         + f'<form method="POST" action="{base}/password/start">'
         + f'<label>Region <select name="region">{options}</select></label>'
         + '<label>Email <input name="email" type="email" required></label>'

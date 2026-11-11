@@ -5,7 +5,7 @@ ARG BUILD_FROM
 # commit so the same app version always builds the same code
 FROM golang:1.26-alpine AS builder
 
-ARG TUYA_IPC_TERMINAL_REF=c095fa9f3c02150203629799b6b249f7c0c640b6
+ARG TUYA_IPC_TERMINAL_REF=655cb01faa98acce8aaae1f3acf5ed1120b0b742
 ARG TUYA_IPC_TERMINAL_REPO=https://github.com/YaannnTech/tuya-ipc-terminal.git
 RUN apk add --no-cache git sed
 
