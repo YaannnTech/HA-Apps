@@ -1,6 +1,6 @@
 # PhoneBlock for Home Assistant
 
-![PhoneBlock](https://raw.githubusercontent.com/YaannnTech/HA-Apps/main/phoneblock_dongle/logo.png)
+![PhoneBlock and AnswerBot](https://raw.githubusercontent.com/YaannnTech/HA-Apps/main/.github/images/phoneblock-answerbot.png)
 
 [PhoneBlock](https://github.com/haumacher/phoneblock) by haumacher is a community-maintained database of spam phone numbers at [phoneblock.net](https://phoneblock.net/).
 
