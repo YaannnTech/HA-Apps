@@ -11,6 +11,11 @@ $dark-text: #e6edf3;
 $dark-text-muted: #9198a1;
 $dark-link: #4493f8;
 
+// Hide the theme's site title header ("HA-Apps" link) above every page.
+.markdown-body > h1:first-child {
+  display: none;
+}
+
 html,
 body {
   background-color: $dark-bg;
