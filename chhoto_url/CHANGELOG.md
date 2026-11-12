@@ -1,3 +1,9 @@
+# 7.11.4.1
+
+- Update Chhoto URL to upstream release 7.11.4.
+- Fix: Logging in to the web interface and the API always failed when no **Password** is set. It works again, and with no password and no **API Key** you are logged in without asking ([#163](https://github.com/SinTan1729/chhoto-url/pull/163)).
+- Fix: After resetting a link's hit count when editing it, the count showed 1 instead of 0 ([#164](https://github.com/SinTan1729/chhoto-url/pull/164)).
+
 # 7.11.3.1
 
 - Update Chhoto URL to upstream release 7.11.3 (includes 7.11.0 to 7.11.2): a **Public Site URL** without a scheme but with a port (for example `s.example.com:4567`) is handled now ([#156](https://github.com/SinTan1729/chhoto-url/issues/156)).
