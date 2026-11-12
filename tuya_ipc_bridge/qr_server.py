@@ -6,6 +6,7 @@ import io
 import json
 import re
 import subprocess
+import sys
 import threading
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -57,6 +58,20 @@ def render_qr_svg(data):
 
 JOBS = {}
 
+# run.sh watches for this file; it then refreshes the cameras, restarts the RTSP server
+# and re-checks the sessions, so a new login takes effect without restarting the app.
+LOGIN_MARKER = "/data/.login-done"
+
+
+def signal_login(job):
+    """Signal a completed login and report a marker failure to the job."""
+    try:
+        with open(LOGIN_MARKER, "w", encoding="ascii"):
+            pass
+    except OSError as exc:
+        print(f"Failed to signal login: {exc}", file=sys.stderr, flush=True)
+        job["message"] += " Could not restart camera discovery. Restart the app."
+
 
 def start_job(target, region, email, *args):
     job_id = uuid.uuid4().hex
@@ -67,7 +82,9 @@ def start_job(target, region, email, *args):
 
 
 def run_qr_job(job_id, region, email):
+    """Run a QR login and signal the app after success."""
     job = JOBS[job_id]
+    success = False
     try:
         proc = subprocess.Popen(
             ["tuya-ipc-terminal", "auth", "add", region, email, "--qr"],
@@ -95,19 +112,23 @@ def run_qr_job(job_id, region, email):
             proc.stdin.write("\n")
             proc.stdin.flush()
         elif "Successfully added" in line:
-            job["state"] = "success"
+            success = True
             job["message"] = line
         elif "authentication failed" in line or "error polling" in line.lower():
             job["state"] = "error"
             job["message"] = line
 
     proc.wait()
-    if job["state"] not in ("success", "error"):
+    if success and job["state"] != "error":
+        signal_login(job)
+        job["state"] = "success"
+    elif job["state"] != "error":
         job["state"] = "error"
         job["message"] = "Process exited before login completed."
 
 
 def run_password_job(job_id, region, email, password):
+    """Run a password login and signal the app after success."""
     job = JOBS[job_id]
     try:
         proc = subprocess.run(
@@ -123,8 +144,9 @@ def run_password_job(job_id, region, email, password):
         return
 
     if proc.returncode == 0:
-        job["state"] = "success"
         job["message"] = "Account added successfully."
+        signal_login(job)
+        job["state"] = "success"
     else:
         job["state"] = "error"
         job["message"] = (
