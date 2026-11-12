@@ -23,7 +23,7 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 
 ## GitHub Pages
 
-GitHub Pages builds the repository from `main` (root, default Primer theme, no `_config.yml`) to https://yaannntech.github.io/HA-Apps/, where each app's `README.md` renders as `<app>/`. The root `README.md` links each app to `<app>/README.md`, not the folder: On GitHub that opens the rendered README without the file list above it, and on Pages the link resolves to the app page. `assets/css/style.scss` imports the Primer theme, hides the theme's site title header and overrides its colours to always-dark.
+GitHub Pages builds the repository from `main` (root, default Primer theme, no `_config.yml`) to https://yaannntech.github.io/HA-Apps/, where each app's `README.md` renders as `<app>/`. The root `README.md` links each app to `<app>/README.md`, not the folder: On GitHub that opens the rendered README without the file list above it, and on Pages the link resolves to the app page. `assets/css/style.scss` imports the Primer theme, hides the theme's site title header and footer and overrides its colours to always-dark.
 
 ## Versioning
 

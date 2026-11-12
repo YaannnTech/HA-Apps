@@ -79,8 +79,7 @@ body {
   }
 }
 
-.footer,
-.text-gray {
-  color: $dark-text-muted !important;
-  border-top-color: $dark-border !important;
+// Hide the theme's footer ("This site is open source. Improve this page.").
+.footer {
+  display: none;
 }
