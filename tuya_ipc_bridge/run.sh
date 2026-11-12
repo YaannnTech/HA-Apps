@@ -53,13 +53,53 @@ notify_ha() {
         "http://supervisor/core/api/services/persistent_notification/${service}" >/dev/null 2>&1 || true
 }
 
-# Runs "auth test" for one account; succeeds when the session is valid. The output goes to
-# AUTH_TEST_OUTPUT so a failure can be logged (it holds the user ID on success, so it is
-# only ever logged on failure, and then only the error lines).
+# Runs "auth test" for one account; its output can contain session data or a user ID.
 AUTH_RETRY_DELAY=30
 auth_test() {
     AUTH_TEST_OUTPUT=$(tuya-ipc-terminal auth test "$1" "$2" 2>&1 || true)
     grep -q "Session is valid" <<< "${AUTH_TEST_OUTPUT}"
+}
+
+auth_diagnostic() {
+    local line body status details
+    while IFS= read -r line; do
+        if [[ "${line}" =~ HTTP\ error:\ ([0-9]{3})\ -\ (.*) ]]; then
+            status="${BASH_REMATCH[1]}"
+            body="${BASH_REMATCH[2]}"
+            # Only numeric codes and known fixed messages are safe to echo from a server response.
+            details=$(jq -sr 'if length != 1 or (.[0] | type) != "object" then empty else .[0] |
+                (if (.errorCode | type) == "number" and
+                    (.errorCode | tostring | test("^-?[0-9]{1,10}$"))
+                 then " errorCode=" + (.errorCode | tostring)
+                 elif (.errorCode | type) == "string" and
+                    (.errorCode | test("^-?[0-9]{1,10}$"))
+                 then " errorCode=" + .errorCode
+                 elif has("errorCode") then " errorCode=[redacted]" else "" end) +
+                (if has("errorMsg") then
+                    " errorMsg=" + (if .errorMsg == "session expired" then "session expired"
+                    elif .errorMsg == "invalid session" then "invalid session"
+                    else "[redacted]" end)
+                 else "" end) end' <<< "${body}" 2>/dev/null) || details=""
+            printf 'HTTP error: %s%s\n' "${status}" "${details}"
+            return
+        elif [[ "${line}" == *"not found"* && "${line}" == *"User "* ]]; then
+            echo "User not found"
+            return
+        elif [[ "${line}" == *"invalid session data"* ]]; then
+            echo "Invalid session data"
+            return
+        elif [[ "${line}" == *"Failed to create HTTP client"* ]]; then
+            echo "Failed to create HTTP client"
+            return
+        elif [[ "${line}" == *"Session is invalid"* ]]; then
+            echo "Session is invalid"
+            return
+        elif [[ "${line}" == *"failed to get user"* ]]; then
+            echo "Failed to get user"
+            return
+        fi
+    done <<< "${AUTH_TEST_OUTPUT}"
+    echo "no details"
 }
 
 # Periodically re-validates every stored session; QR/password logins expire after a few
@@ -67,7 +107,7 @@ auth_test() {
 # A failed test is retried once after a short pause, because a single check can fail for
 # transient reasons (for example right after the app or the RTSP server started).
 check_sessions() {
-    local f REGION EMAIL NOTIF_ID line valid
+    local f REGION EMAIL NOTIF_ID valid
     for f in "${DATA_DIR}/.tuya-data"/user_*.json; do
         [ -e "${f}" ] || continue
         REGION=$(jq -r '.region' "${f}") || continue
@@ -87,9 +127,7 @@ check_sessions() {
             notify_ha dismiss "${NOTIF_ID}"
         else
             bashio::log.warning "Session expired for ${EMAIL} (${REGION}); notifying Home Assistant"
-            while IFS= read -r line; do
-                bashio::log.warning "auth test: ${line}"
-            done < <(grep -iE 'invalid|error|fail' <<< "${AUTH_TEST_OUTPUT}" | head -n 5 || true)
+            bashio::log.warning "auth test: $(auth_diagnostic)"
             notify_ha create "${NOTIF_ID}" "Tuya IPC Bridge: re-authentication needed" \
                 "The Tuya session for **${EMAIL}** (${REGION}) has expired, so its cameras stopped streaming. [Open Tuya IPC Bridge](${WEB_UI_LINK}) and log in again."
         fi
@@ -98,6 +136,7 @@ check_sessions() {
 
 # Set by qr_server.py after a successful login in the web UI.
 LOGIN_MARKER="${DATA_DIR}/.login-done"
+LOGIN_PROCESSING="${DATA_DIR}/.login-processing"
 RTSP_PID_FILE="${DATA_DIR}/.tuya-data/rtsp-${RTSP_PORT}.pid"
 
 # The RTSP server refuses to start with zero authenticated users, so it can't
@@ -105,8 +144,9 @@ RTSP_PID_FILE="${DATA_DIR}/.tuya-data/rtsp-${RTSP_PORT}.pid"
 # Keep the app alive and (re)start the RTSP server once/whenever users exist.
 RTSP_PID=""
 SESSION_CHECK_INTERVAL=3600
-# The first check runs a few minutes after the RTSP server (re)start, not in the same
+# The first check runs a few minutes after the first RTSP start, not in the same
 # loop pass: right after the start a check can fail although the session is fine.
+# Failed RTSP starts must not postpone an already scheduled session check.
 FIRST_SESSION_CHECK_DELAY=300
 NEXT_SESSION_CHECK=0
 NO_ACCOUNTS_NOTIFIED=0
@@ -117,7 +157,9 @@ start_rtsp() {
     tuya-ipc-terminal cameras refresh || true
     tuya-ipc-terminal rtsp start --port "${RTSP_PORT}" &
     RTSP_PID=$!
-    NEXT_SESSION_CHECK=$(( $(date +%s) + FIRST_SESSION_CHECK_DELAY ))
+    if [ "${NEXT_SESSION_CHECK}" -eq 0 ]; then
+        NEXT_SESSION_CHECK=$(( $(date +%s) + FIRST_SESSION_CHECK_DELAY ))
+    fi
 }
 
 # Stops the running RTSP server and waits until it has exited (SIGKILL after 20 s), so the
@@ -135,7 +177,7 @@ stop_rtsp() {
         wait "${RTSP_PID}" 2>/dev/null || true
     fi
     RTSP_PID=""
-    rm -f "${RTSP_PID_FILE}"
+    rm -f "${RTSP_PID_FILE}" || bashio::log.warning "Could not remove the RTSP pid file"
 }
 
 while true; do
@@ -153,14 +195,20 @@ while true; do
         NO_ACCOUNTS_NOTIFIED=0
     fi
 
-    if [ -e "${LOGIN_MARKER}" ]; then
-        rm -f "${LOGIN_MARKER}"
+    if [ ! -e "${LOGIN_PROCESSING}" ] && [ -e "${LOGIN_MARKER}" ]; then
+        mv "${LOGIN_MARKER}" "${LOGIN_PROCESSING}" || \
+            bashio::log.warning "Could not queue login processing; retrying on the next loop"
+    fi
+    if [ -e "${LOGIN_PROCESSING}" ]; then
+        USER_COUNT=$(find "${DATA_DIR}/.tuya-data" -maxdepth 1 -name 'user_*.json' 2>/dev/null | wc -l)
         if [ "${USER_COUNT}" -gt 0 ]; then
             bashio::log.info "New login detected; restarting the RTSP server"
             stop_rtsp
             start_rtsp
             check_sessions
             NEXT_SESSION_CHECK=$(( $(date +%s) + SESSION_CHECK_INTERVAL ))
+            rm -f "${LOGIN_PROCESSING}" || \
+                bashio::log.warning "Could not clear processed login marker; retrying on the next loop"
         fi
     fi
 
