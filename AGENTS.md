@@ -21,6 +21,10 @@ A Home Assistant app repository (formerly "add-on" repository; use "app" in all 
 - `README.md` (Info tab); `tuya_ipc_bridge` and `phoneblock_dongle` also have `DOCS.md` (Documentation tab).
 - `run.sh` (or `rootfs/run.sh`, copied to `/run.sh`): reads `/data/options.json` (directly with jq/python, or via bashio in apps on a Home Assistant base image) and talks to the Supervisor API at `http://supervisor` with `$SUPERVISOR_TOKEN`.
 
+## GitHub Pages
+
+GitHub Pages builds the repository from `main` (root, default Primer theme, no `_config.yml`) to https://yaannntech.github.io/HA-Apps/, where each app's `README.md` renders as `<app>/`. The root `README.md` links each app to `<app>/README.md`, not the folder: On GitHub that opens the rendered README without the file list above it, and on Pages the link resolves to the app page. `assets/css/style.scss` imports the Primer theme, hides the theme's site title header and footer and overrides its colours to always-dark.
+
 ## Versioning
 
 - Apps wrapping an upstream release use the upstream version plus a fourth component: `7.9.3.1` = upstream 7.9.3, first app build. Reset the last digit to `.1` when upstream changes.
