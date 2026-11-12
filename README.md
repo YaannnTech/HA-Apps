@@ -12,10 +12,10 @@ Self-hosted services packaged as Home Assistant apps (formerly called add-ons).
 
 | | App | Version | Description |
 |:-:|---|---|---|
-| <img src="phoneblock_dongle/icon.png" width="48" alt=""> | [PhoneBlock](phoneblock_dongle) | ![Version][v-phoneblock] | Runs the [PhoneBlock][phoneblock-dongle] SIP spam-call blocker in HA, no ESP32 dongle needed. |
-| <img src="chhoto_url/icon.png" width="48" alt=""> | [Chhoto URL](chhoto_url) | ![Version][v-chhoto] | Runs [Chhoto URL][chhoto-upstream], a simple self-hosted URL shortener. |
-| <img src="kokoro_fastapi/icon.png" width="48" alt=""> | [Kokoro-FastAPI](kokoro_fastapi) | ![Version][v-kokoro] | Runs the [Kokoro-FastAPI][kokoro-upstream] text-to-speech server locally on the Home Assistant host. |
-| <img src="tuya_ipc_bridge/icon.png" width="48" alt=""> | [Tuya IPC Bridge](tuya_ipc_bridge) | ![Version][v-tuya] | Bridges Tuya IP camera streams to RTSP for cameras the native Tuya integration does not support. |
+| <img src="phoneblock_dongle/icon.png" width="48" alt=""> | [PhoneBlock][page-phoneblock] | ![Version][v-phoneblock] | Runs the [PhoneBlock][phoneblock-dongle] SIP spam-call blocker in HA, no ESP32 dongle needed. |
+| <img src="chhoto_url/icon.png" width="48" alt=""> | [Chhoto URL][page-chhoto] | ![Version][v-chhoto] | Runs [Chhoto URL][chhoto-upstream], a simple self-hosted URL shortener. |
+| <img src="kokoro_fastapi/icon.png" width="48" alt=""> | [Kokoro-FastAPI][page-kokoro] | ![Version][v-kokoro] | Runs the [Kokoro-FastAPI][kokoro-upstream] text-to-speech server locally on the Home Assistant host. |
+| <img src="tuya_ipc_bridge/icon.png" width="48" alt=""> | [Tuya IPC Bridge][page-tuya] | ![Version][v-tuya] | Bridges Tuya IP camera streams to RTSP for cameras the native Tuya integration does not support. |
 
 ## Installation
 
@@ -48,6 +48,10 @@ These apps package the work of the following projects:
 [kokoro-upstream]: https://github.com/remsky/Kokoro-FastAPI
 [tuya-upstream]: https://github.com/seydx/tuya-ipc-terminal
 [tuya-fork]: https://github.com/YaannnTech/tuya-ipc-terminal
+[page-phoneblock]: https://yaannntech.github.io/HA-Apps/phoneblock_dongle/
+[page-chhoto]: https://yaannntech.github.io/HA-Apps/chhoto_url/
+[page-kokoro]: https://yaannntech.github.io/HA-Apps/kokoro_fastapi/
+[page-tuya]: https://yaannntech.github.io/HA-Apps/tuya_ipc_bridge/
 [v-phoneblock]: https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FYaannnTech%2FHA-Apps%2Fmain%2Fphoneblock_dongle%2Fconfig.yaml&query=%24.version&label=
 [v-chhoto]: https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FYaannnTech%2FHA-Apps%2Fmain%2Fchhoto_url%2Fconfig.yaml&query=%24.version&label=
 [v-kokoro]: https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FYaannnTech%2FHA-Apps%2Fmain%2Fkokoro_fastapi%2Fconfig.yaml&query=%24.version&label=

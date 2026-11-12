@@ -1,0 +1,81 @@
+---
+---
+
+@import "jekyll-theme-primer";
+
+// Dark colours for the GitHub Pages site (always dark, same layout as the default theme).
+$dark-bg: #0d1117;
+$dark-bg-subtle: #161b22;
+$dark-border: #30363d;
+$dark-text: #e6edf3;
+$dark-text-muted: #9198a1;
+$dark-link: #4493f8;
+
+html,
+body {
+  background-color: $dark-bg;
+  color: $dark-text;
+}
+
+.markdown-body {
+  color: $dark-text;
+
+  a {
+    color: $dark-link;
+  }
+
+  h1,
+  h2 {
+    border-bottom-color: $dark-border;
+  }
+
+  hr {
+    background-color: $dark-border;
+  }
+
+  blockquote {
+    color: $dark-text-muted;
+    border-left-color: $dark-border;
+  }
+
+  code,
+  tt {
+    background-color: rgba(110, 118, 129, 0.4);
+  }
+
+  pre,
+  .highlight pre {
+    background-color: $dark-bg-subtle;
+    color: $dark-text;
+  }
+
+  pre code {
+    background-color: transparent;
+  }
+
+  table {
+    th,
+    td {
+      border-color: $dark-border;
+    }
+
+    tr {
+      background-color: $dark-bg;
+      border-top-color: $dark-border;
+    }
+
+    tr:nth-child(2n) {
+      background-color: $dark-bg-subtle;
+    }
+  }
+
+  img {
+    background-color: transparent;
+  }
+}
+
+.footer,
+.text-gray {
+  color: $dark-text-muted !important;
+  border-top-color: $dark-border !important;
+}
