@@ -5,7 +5,7 @@ Self-hosted services packaged as Home Assistant apps (formerly called add-ons).
 [![Add repository to my Home Assistant][add-repo-badge]][add-repo]
 
 [![CI](https://github.com/YaannnTech/HA-Apps/actions/workflows/ci.yml/badge.svg)](https://github.com/YaannnTech/HA-Apps/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/github/license/YaannnTech/HA-Apps)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/YaannnTech/HA-Apps)][license]
 ![Architectures: amd64, aarch64](https://img.shields.io/badge/arch-amd64%20%7C%20aarch64-blue)
 
 ## Apps
@@ -38,8 +38,9 @@ These apps package the work of the following projects:
 
 ## License
 
-[MIT](LICENSE)
+[MIT][license]
 
+[license]: https://github.com/YaannnTech/HA-Apps/blob/main/LICENSE
 [add-repo-badge]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
 [add-repo]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FYaannnTech%2FHA-Apps
 [phoneblock-dongle]: https://phoneblock.net/phoneblock/dongle
