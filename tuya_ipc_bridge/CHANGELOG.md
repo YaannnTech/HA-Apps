@@ -1,3 +1,10 @@
+# 0.11.5
+
+- Builds commit `d473df0` of the fork.
+- RTSP clients that are playing are no longer disconnected after 60 s without
+  sending a request, which could drop a viewer during an HD session renewal
+  ([YaannnTech/tuya-ipc-terminal#11](https://github.com/YaannnTech/tuya-ipc-terminal/issues/11)).
+
 # 0.11.4
 
 - Builds commit `d35255d` of the fork.
