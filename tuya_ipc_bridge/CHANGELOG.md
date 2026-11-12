@@ -1,3 +1,10 @@
+# 0.11.4
+
+- Builds commit `d35255d` of the fork.
+- After an HD session renewal, audio continues with the camera's timestamp
+  step instead of skipping one packet
+  ([YaannnTech/tuya-ipc-terminal#11](https://github.com/YaannnTech/tuya-ipc-terminal/issues/11)).
+
 # 0.11.3
 
 - Builds commit `c3e0dc0` of the fork.
