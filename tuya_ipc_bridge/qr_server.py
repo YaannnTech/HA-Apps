@@ -4,6 +4,7 @@ import argparse
 import html
 import io
 import json
+import os
 import re
 import subprocess
 import threading
@@ -57,6 +58,18 @@ def render_qr_svg(data):
 
 JOBS = {}
 
+# run.sh watches for this file; it then refreshes the cameras, restarts the RTSP server
+# and re-checks the sessions, so a new login takes effect without restarting the app.
+LOGIN_MARKER = "/data/.login-done"
+
+
+def signal_login():
+    try:
+        with open(LOGIN_MARKER, "w", encoding="ascii"):
+            pass
+    except OSError:
+        pass
+
 
 def start_job(target, region, email, *args):
     job_id = uuid.uuid4().hex
@@ -102,7 +115,9 @@ def run_qr_job(job_id, region, email):
             job["message"] = line
 
     proc.wait()
-    if job["state"] not in ("success", "error"):
+    if job["state"] == "success":
+        signal_login()
+    elif job["state"] != "error":
         job["state"] = "error"
         job["message"] = "Process exited before login completed."
 
@@ -125,6 +140,7 @@ def run_password_job(job_id, region, email, password):
     if proc.returncode == 0:
         job["state"] = "success"
         job["message"] = "Account added successfully."
+        signal_login()
     else:
         job["state"] = "error"
         job["message"] = (

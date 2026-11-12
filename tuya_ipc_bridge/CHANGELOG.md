@@ -1,3 +1,10 @@
+# 0.11.1
+
+- Still builds fork release v0.2.0 (commit `655cb01`); only the app scripts changed.
+- No more false "re-authentication needed" notification right after the app starts: The first session check now runs about 5 minutes after the camera streaming server (RTSP) starts, not in the same second.
+- A failed session check is repeated once after 30 seconds before Home Assistant is notified. When it still fails, the app log shows the error lines of the check (no session data).
+- After a successful QR or password login in the web UI, the app refreshes the camera list, restarts the RTSP server and re-checks the sessions (which dismisses an old re-authentication notification). Restarting the app by hand is no longer needed.
+
 # 0.11.0
 
 - Build from fork release v0.2.0 (commit `655cb01`). It adds:

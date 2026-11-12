@@ -34,7 +34,9 @@ Password login works for Tuya Smart and Smart Life accounts. It does not work fo
 Tuya sessions (both QR and password logins) expire after a few days, and the app can't do anything useful with zero accounts logged in. In both cases it creates a Home Assistant persistent notification (Settings → Notifications) with a link back to this app's Web UI, and automatically dismisses it once resolved:
 
 - **No accounts configured**: Shown as soon as the app starts with zero logged-in accounts, dismissed once the first one is added.
-- **Re-authentication needed**: Every stored session is re-checked hourly; if one has expired, a notification prompts you to log in again, dismissed once the session is valid again.
+- **Re-authentication needed**: Every stored session is re-checked hourly (the first check runs about 5 minutes after the app starts).
+  A failed check is repeated once after 30 seconds; if it still fails, the notification prompts you to log in again and the app log shows the error.
+  After you log in again in the web UI, the app refreshes the camera list, restarts the RTSP server and re-checks the sessions by itself, so the notification is dismissed without restarting the app.
 
 ## Adding cameras to Home Assistant
 

@@ -53,33 +53,91 @@ notify_ha() {
         "http://supervisor/core/api/services/persistent_notification/${service}" >/dev/null 2>&1 || true
 }
 
+# Runs "auth test" for one account; succeeds when the session is valid. The output goes to
+# AUTH_TEST_OUTPUT so a failure can be logged (it holds the user ID on success, so it is
+# only ever logged on failure, and then only the error lines).
+AUTH_RETRY_DELAY=30
+auth_test() {
+    AUTH_TEST_OUTPUT=$(tuya-ipc-terminal auth test "$1" "$2" 2>&1 || true)
+    grep -q "Session is valid" <<< "${AUTH_TEST_OUTPUT}"
+}
+
 # Periodically re-validates every stored session; QR/password logins expire after a few
 # days, and this surfaces that as a Home Assistant notification instead of silent log spam.
+# A failed test is retried once after a short pause, because a single check can fail for
+# transient reasons (for example right after the app or the RTSP server started).
 check_sessions() {
+    local f REGION EMAIL NOTIF_ID line valid
     for f in "${DATA_DIR}/.tuya-data"/user_*.json; do
         [ -e "${f}" ] || continue
-        REGION=$(jq -r '.region' "${f}")
-        EMAIL=$(jq -r '.email' "${f}")
+        REGION=$(jq -r '.region' "${f}") || continue
+        EMAIL=$(jq -r '.email' "${f}") || continue
         NOTIF_ID="tuya_ipc_bridge_reauth_$(echo "${REGION}_${EMAIL}" | tr -c 'a-zA-Z0-9' '_')"
 
-        if tuya-ipc-terminal auth test "${REGION}" "${EMAIL}" 2>/dev/null | grep -q "Session is valid"; then
+        if auth_test "${REGION}" "${EMAIL}"; then
+            valid=1
+        else
+            bashio::log.info "Session test failed for ${EMAIL} (${REGION}); retrying in ${AUTH_RETRY_DELAY} s"
+            sleep "${AUTH_RETRY_DELAY}"
+            valid=0
+            ! auth_test "${REGION}" "${EMAIL}" || valid=1
+        fi
+
+        if [ "${valid}" -eq 1 ]; then
             notify_ha dismiss "${NOTIF_ID}"
         else
             bashio::log.warning "Session expired for ${EMAIL} (${REGION}); notifying Home Assistant"
+            while IFS= read -r line; do
+                bashio::log.warning "auth test: ${line}"
+            done < <(grep -iE 'invalid|error|fail' <<< "${AUTH_TEST_OUTPUT}" | head -n 5 || true)
             notify_ha create "${NOTIF_ID}" "Tuya IPC Bridge: re-authentication needed" \
                 "The Tuya session for **${EMAIL}** (${REGION}) has expired, so its cameras stopped streaming. [Open Tuya IPC Bridge](${WEB_UI_LINK}) and log in again."
         fi
     done
 }
 
+# Set by qr_server.py after a successful login in the web UI.
+LOGIN_MARKER="${DATA_DIR}/.login-done"
+RTSP_PID_FILE="${DATA_DIR}/.tuya-data/rtsp-${RTSP_PORT}.pid"
+
 # The RTSP server refuses to start with zero authenticated users, so it can't
 # just be exec'd here: accounts are only ever added later via the Web UI.
 # Keep the app alive and (re)start the RTSP server once/whenever users exist.
 RTSP_PID=""
 SESSION_CHECK_INTERVAL=3600
-LAST_SESSION_CHECK=0
+# The first check runs a few minutes after the RTSP server (re)start, not in the same
+# loop pass: right after the start a check can fail although the session is fine.
+FIRST_SESSION_CHECK_DELAY=300
+NEXT_SESSION_CHECK=0
 NO_ACCOUNTS_NOTIFIED=0
 NO_ACCOUNTS_NOTIF_ID="tuya_ipc_bridge_no_accounts"
+
+start_rtsp() {
+    bashio::log.info "Starting RTSP server on port ${RTSP_PORT}..."
+    tuya-ipc-terminal cameras refresh || true
+    tuya-ipc-terminal rtsp start --port "${RTSP_PORT}" &
+    RTSP_PID=$!
+    NEXT_SESSION_CHECK=$(( $(date +%s) + FIRST_SESSION_CHECK_DELAY ))
+}
+
+# Stops the running RTSP server and waits until it has exited (SIGKILL after 20 s), so the
+# new one can bind the port. The CLI ignores a stale pid file (it checks that the process
+# is gone), but it is removed here anyway.
+stop_rtsp() {
+    if [ -n "${RTSP_PID}" ] && kill -0 "${RTSP_PID}" 2>/dev/null; then
+        bashio::log.info "Stopping RTSP server..."
+        kill "${RTSP_PID}" 2>/dev/null || true
+        for _ in $(seq 1 40); do
+            kill -0 "${RTSP_PID}" 2>/dev/null || break
+            sleep 0.5
+        done
+        kill -9 "${RTSP_PID}" 2>/dev/null || true
+        wait "${RTSP_PID}" 2>/dev/null || true
+    fi
+    RTSP_PID=""
+    rm -f "${RTSP_PID_FILE}"
+}
+
 while true; do
     USER_COUNT=$(find "${DATA_DIR}/.tuya-data" -maxdepth 1 -name 'user_*.json' 2>/dev/null | wc -l)
 
@@ -95,19 +153,26 @@ while true; do
         NO_ACCOUNTS_NOTIFIED=0
     fi
 
-    if [ "${USER_COUNT}" -gt 0 ]; then
-        if [ -z "${RTSP_PID}" ] || ! kill -0 "${RTSP_PID}" 2>/dev/null; then
-            bashio::log.info "Starting RTSP server on port ${RTSP_PORT}..."
-            tuya-ipc-terminal cameras refresh || true
-            tuya-ipc-terminal rtsp start --port "${RTSP_PORT}" &
-            RTSP_PID=$!
+    if [ -e "${LOGIN_MARKER}" ]; then
+        rm -f "${LOGIN_MARKER}"
+        if [ "${USER_COUNT}" -gt 0 ]; then
+            bashio::log.info "New login detected; restarting the RTSP server"
+            stop_rtsp
+            start_rtsp
+            check_sessions
+            NEXT_SESSION_CHECK=$(( $(date +%s) + SESSION_CHECK_INTERVAL ))
         fi
     fi
 
-    NOW=$(date +%s)
-    if [ "${USER_COUNT}" -gt 0 ] && [ $((NOW - LAST_SESSION_CHECK)) -ge "${SESSION_CHECK_INTERVAL}" ]; then
-        LAST_SESSION_CHECK=${NOW}
-        check_sessions
+    if [ "${USER_COUNT}" -gt 0 ]; then
+        if [ -z "${RTSP_PID}" ] || ! kill -0 "${RTSP_PID}" 2>/dev/null; then
+            start_rtsp
+        fi
+
+        if [ "$(date +%s)" -ge "${NEXT_SESSION_CHECK}" ]; then
+            check_sessions
+            NEXT_SESSION_CHECK=$(( $(date +%s) + SESSION_CHECK_INTERVAL ))
+        fi
     fi
 
     sleep 15
