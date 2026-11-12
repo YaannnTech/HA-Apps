@@ -60,6 +60,7 @@ streams:
 ## Troubleshooting
 
 - Check the app log — authentication and camera discovery output is printed on every start.
+- For streams that drop, check the app log for `stream_diag` connection diagnostics.
 - If login keeps failing, verify the account/region/password. A QR code from the wrong region scans without an error but the login never completes.
 - "Authentication failed" or "wrong account or password" on password login for an OEM account (such as LittleElf and many others): Password login does not work for these accounts; use QR login and scan the code with the account's own app.
 - If cameras don't appear, confirm they're online in the Tuya Smart / Smart Life / other Tuya variant app first.

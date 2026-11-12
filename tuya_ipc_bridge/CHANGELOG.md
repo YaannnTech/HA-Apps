@@ -1,3 +1,8 @@
+# 0.11.2
+
+- Builds commit `073e4fe` of the fork (after release v0.2.0).
+- To investigate streams that drop after about 10 minutes ([fork issue #11](https://github.com/YaannnTech/tuya-ipc-terminal/issues/11)), the bridge logs per-stream `stream_diag` connection diagnostics: ICE servers and their TTL, connection states, the selected candidate pair and the first shutdown trigger. ICE server credentials are not included.
+
 # 0.11.1
 
 - Still builds fork release v0.2.0 (commit `655cb01`); only the app scripts changed.
