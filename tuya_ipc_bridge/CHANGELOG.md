@@ -1,3 +1,10 @@
+# 0.11.3
+
+- Builds commit `c3e0dc0` of the fork.
+- HD (`/hd`, HEVC) streams renew the camera session when Tuya closes it (seen after about 10 minutes) instead of dropping RTSP clients, with a short video gap ([fork issue #11](https://github.com/YaannnTech/tuya-ipc-terminal/issues/11)).
+- Video over RTP tracks (`/sd`) is reordered by sequence number before forwarding, so late retransmitted packets no longer make timestamps go backwards ([fork issue #32](https://github.com/YaannnTech/tuya-ipc-terminal/issues/32)).
+- The camera disconnect on stop no longer blocks shutdown.
+
 # 0.11.2
 
 - Builds commit `073e4fe` of the fork (after release v0.2.0).
