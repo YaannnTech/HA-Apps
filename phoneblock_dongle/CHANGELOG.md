@@ -1,3 +1,7 @@
+# 2.0.2.1
+
+- Update to PhoneBlock firmware 2.0.2 (package `phoneblock-dongle` 2.0.2). Firmware release notes: [2.0.2](https://github.com/haumacher/phoneblock/blob/master/phoneblock-dongle/firmware/release-notes/2.0.2.md).
+
 # 2.0.1.2
 
 - Remove the unused settings that older app versions wrote without a section header to the top of `dongle.conf` (including an old token and Fritz!Box password). The service only reads the `[phoneblock]` section, which stays as it is.
