@@ -1,3 +1,13 @@
+# 0.12.0
+
+- Uses fork release v0.3.0 (commit `f2d476b`) as a prebuilt binary from the
+  fork's image, so installs and updates no longer compile Go on the device
+  ([YaannnTech/tuya-ipc-terminal#35](https://github.com/YaannnTech/tuya-ipc-terminal/issues/35)).
+  The release contains the stream fixes that 0.11.2 to 0.11.5 already
+  shipped as commit builds.
+- The QR login URL comes from the fork's new `--print-qr-url` option
+  instead of a patch applied during the build.
+
 # 0.11.5
 
 - Builds commit `d473df0` of the fork.

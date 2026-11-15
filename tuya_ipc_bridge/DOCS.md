@@ -6,7 +6,7 @@ Wraps [tuya-ipc-terminal](https://github.com/seydx/tuya-ipc-terminal) by seydx (
 
 1. In Home Assistant, go to **Settings → Apps → Install Apps**.
 2. Click the **⋮** menu (top right) → **Repositories** → add this repository's URL (`https://github.com/YaannnTech/HA-Apps`).
-3. Find **Tuya IPC Bridge** and click **Install**. The image is built locally from the Go source at install time, from the maintained [tuya-ipc-terminal fork](https://github.com/YaannnTech/tuya-ipc-terminal), which adds RTSP and WebRTC fixes to the original project.
+3. Find **Tuya IPC Bridge** and click **Install**. The image is built locally at install time and includes a prebuilt binary from the maintained [tuya-ipc-terminal fork](https://github.com/YaannnTech/tuya-ipc-terminal), which adds RTSP and WebRTC fixes to the original project.
 
 ## Adding Tuya accounts
 

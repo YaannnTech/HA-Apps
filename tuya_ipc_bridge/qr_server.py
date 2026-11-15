@@ -87,7 +87,7 @@ def run_qr_job(job_id, region, email):
     success = False
     try:
         proc = subprocess.Popen(
-            ["tuya-ipc-terminal", "auth", "add", region, email, "--qr"],
+            ["tuya-ipc-terminal", "auth", "add", region, email, "--qr", "--print-qr-url"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
