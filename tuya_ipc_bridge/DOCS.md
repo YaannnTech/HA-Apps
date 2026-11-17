@@ -17,11 +17,11 @@ QR-code login and email/password login, plus a live list under **Authenticated a
 
 In the Web UI, under **Add or renew account**, select **QR code**:
 
-1. Select the account's **Region** and enter its **Email**. The region is the Tuya data center of the account, not where you live: most accounts in the Americas are in **us-west** (West America), and Brazilian accounts use **brazil**. If the QR login never completes after scanning, try another region.
+1. Select the account's **Region** and enter its **Email**. The region is the Tuya data center of the account, not where you live: Most accounts in the Americas are in **us-west** (West America), and Brazilian accounts use **brazil**. If the QR login never completes after scanning, try another region.
 2. Click **Start QR login** — a real, scannable QR code appears in the page (rendered
    by the app itself; the login URL is never sent to a third-party QR service).
 3. Scan it with the Tuya Smart / Smart Life app, or with the OEM app the account belongs to (such as LittleElf). The page polls automatically and shows
-   *success* or *error* once the login completes. Click **Back to accounts** to return to the list.
+   **Account added** or **Login failed** once the login completes. Click **Back to accounts** to return to the list.
 
 > **Important**: this QR code is not a normal URL — it only works with the Tuya / Smart Life (or variants) app's own built-in QR scanner, **not** your phone's regular Camera app (which won't recognize it at all). In the app, use the scan icon on the **Me**/**Profile** tab (the same one used for "log in via QR code" on Tuya's web portal), then point it at the screen. The code also expires after about a minute, so scan it promptly after it appears.
 

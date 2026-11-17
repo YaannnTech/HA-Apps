@@ -196,7 +196,7 @@ PAGE_HEAD = """<!DOCTYPE html>
   --border: #bac6ce; --input: #fff; --accent: #006a9b; --primary: #03a9f4;
   --primary-text: #00334a; --soft: #e9f5fb; --success: #17613c;
   --success-bg: #e3f4ea; --error: #a32121; --error-bg: #fceaea;
-  --warning: #754900; --warning-bg: #fff0c2;
+  --warning: #754900; --warning-bg: #fff0c2; --focus: #0277bd;
   --shadow: 0 2px 12px rgba(0, 0, 0, .09);
 }
 @media (prefers-color-scheme: dark) {
@@ -205,7 +205,7 @@ PAGE_HEAD = """<!DOCTYPE html>
     --border: #637584; --input: #17212a; --accent: #70d0ff; --primary-text: #00334a;
     --soft: #153849; --success: #a4e5bc; --success-bg: #193d2d;
     --error: #ffb6b6; --error-bg: #482829; --shadow: 0 2px 12px rgba(0, 0, 0, .25);
-    --warning: #ffda80; --warning-bg: #493710;
+    --warning: #ffda80; --warning-bg: #493710; --focus: #70d0ff;
   }
 }
 * { box-sizing: border-box; }
@@ -231,7 +231,7 @@ input, select {
   padding: 11px 12px; color: var(--text); background: var(--input);
 }
 input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
-  outline: 3px solid var(--primary); outline-offset: 2px;
+  outline: 3px solid var(--focus); outline-offset: 2px;
 }
 button, .button {
   display: inline-block; border: 0; border-radius: 8px; padding: 11px 18px;
@@ -242,13 +242,15 @@ button, .button {
 button:disabled { opacity: .5; cursor: not-allowed; }
 a, a:visited { color: var(--accent); }
 .submit { width: 100%; margin-top: 24px; }
-.switch { display: flex; padding: 4px; border-radius: 10px; background: var(--background); }
+form:not(.enhanced) .submit + .submit { margin-top: 12px; }
+.switch { display: none; padding: 4px; border-radius: 10px; background: var(--background); }
+.enhanced .switch { display: flex; }
 .switch label {
   flex: 1; margin: 0; padding: 8px; border-radius: 7px; text-align: center;
   cursor: pointer; font-weight: 600;
 }
 .switch label:has(input:checked) { background: var(--primary); color: var(--primary-text); }
-.switch label:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.switch label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
 .switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 [hidden] { display: none !important; }
 .account { padding: 14px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
@@ -324,16 +326,18 @@ def render_index(base):
         + f'<label for="region">Region</label><select id="region" name="region">{options}</select>'
         + '<label for="email">Email</label><input id="email" name="email" type="email" '
         + 'autocomplete="username" required>'
-        + '<div id="password-field" hidden><label for="password">Password</label>'
-        + '<input id="password" name="password" type="password" autocomplete="current-password" disabled></div>'
-        + '<button class="primary submit" type="submit" id="submit">Start QR login</button></form></section>'
+        + '<div id="password-field"><label for="password">Password</label>'
+        + '<input id="password" name="password" type="password" autocomplete="current-password"></div>'
+        + f'<button class="primary submit" type="submit" id="submit" formaction="{base}/qr/start">'
+        + 'Start QR login</button>'
+        + f'<button class="primary submit" type="submit" id="password-submit" formaction="{base}/password/start">'
+        + 'Log in</button></form></section>'
         + """
 <script>
 const accounts = document.getElementById('accounts');
 const raw = accounts.querySelector('pre').textContent.trim().replace(/\\r\\n/g, '\\n');
 const lines = raw.split(/\\r?\\n/);
-const empty = raw === "No authenticated users found.\\n" +
-  "Use 'tuya-ipc-terminal auth add [region] [email]' to add a user.";
+const empty = lines.some(line => line.trim() === 'No authenticated users found.');
 const header = /^Found (\\d+) authenticated user\\(s\\):$/.exec(lines[0]);
 const users = [];
 let valid = !!header;
@@ -391,16 +395,23 @@ if (empty) {
 }
 const form = document.getElementById('login-form');
 const password = document.getElementById('password');
-form.addEventListener('change', (event) => {
-  if (event.target.name !== 'method') return;
-  const usePassword = event.target.value === 'password';
+function setMethod(usePassword) {
   document.getElementById('password-field').hidden = !usePassword;
   password.disabled = !usePassword;
   password.required = usePassword;
-  form.action = usePassword ? form.action.replace(/\\/qr\\/start$/, '/password/start')
-                            : form.action.replace(/\\/password\\/start$/, '/qr/start');
-  document.getElementById('submit').textContent = usePassword ? 'Log in' : 'Start QR login';
+  const submit = document.getElementById('submit');
+  const passwordSubmit = document.getElementById('password-submit');
+  submit.hidden = usePassword;
+  passwordSubmit.hidden = !usePassword;
+  form.action = usePassword ? passwordSubmit.formAction : submit.formAction;
+  form.append(usePassword ? passwordSubmit : submit, usePassword ? submit : passwordSubmit);
+}
+form.addEventListener('change', (event) => {
+  if (event.target.name !== 'method') return;
+  setMethod(event.target.value === 'password');
 });
+setMethod(form.querySelector('input[name="method"]:checked').value === 'password');
+form.classList.add('enhanced');
 </script>
 """
         + PAGE_TAIL
