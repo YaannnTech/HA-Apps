@@ -96,8 +96,8 @@ def run_qr_job(job_id, region, email):
             bufsize=1,
         )
     except OSError as exc:
-        job["state"] = "error"
         job["message"] = f"Failed to start CLI: {exc}"
+        job["state"] = "error"
         return
 
     for raw_line in iter(proc.stdout.readline, ""):
@@ -116,16 +116,16 @@ def run_qr_job(job_id, region, email):
             success = True
             job["message"] = line
         elif "authentication failed" in line or "error polling" in line.lower():
-            job["state"] = "error"
             job["message"] = line
+            job["state"] = "error"
 
     proc.wait()
     if success and job["state"] != "error":
         signal_login(job)
         job["state"] = "success"
     elif job["state"] != "error":
-        job["state"] = "error"
         job["message"] = "Process exited before login completed."
+        job["state"] = "error"
 
 
 def run_password_job(job_id, region, email, password):
@@ -140,9 +140,14 @@ def run_password_job(job_id, region, email, password):
             text=True,
             timeout=90,
         )
-    except (OSError, subprocess.SubprocessError) as exc:
+    except subprocess.TimeoutExpired:
+        # Never format the exception: its text contains the command line with the password.
+        job["message"] = "The CLI did not respond in time. Retry and check the app log."
         job["state"] = "error"
-        job["message"] = f"Failed to run login: {str(exc).replace(password, '[REDACTED]')}"
+        return
+    except OSError as exc:
+        job["message"] = f"Failed to run login. {exc.strerror or ''}".strip()
+        job["state"] = "error"
         return
 
     output = f"{proc.stdout or ''}{proc.stderr or ''}".replace(password, "[REDACTED]")
@@ -154,7 +159,6 @@ def run_password_job(job_id, region, email, password):
         signal_login(job)
         job["state"] = "success"
     else:
-        job["state"] = "error"
         if proc.returncode == 1:
             job["message"] = (
                 "Authentication failed. Check the email/password and try again. "
@@ -164,6 +168,7 @@ def run_password_job(job_id, region, email, password):
             job["message"] = "The CLI did not respond in time. Retry and check the app log."
         else:
             job["message"] = "Login ended without success. Check the app log."
+        job["state"] = "error"
 
 
 def get_auth_list():
@@ -242,6 +247,11 @@ let rendered = false;
 async function poll() {
   try {
     const res = await fetch(`${base}/qr/${jobId}/status`);
+    if (res.status === 404) {
+      document.getElementById('message').textContent =
+        'This login is no longer known (the app may have restarted). Go back and start again.';
+      return;
+    }
     if (!res.ok) throw new Error(`Status request failed (${res.status})`);
     const data = await res.json();
     document.getElementById('state').textContent = data.state;
@@ -279,6 +289,11 @@ def render_password_page(base, job_id):
 async function poll() {
   try {
     const res = await fetch(`${base}/password/${jobId}/status`);
+    if (res.status === 404) {
+      document.getElementById('message').textContent =
+        'This login is no longer known (the app may have restarted). Go back and start again.';
+      return;
+    }
     if (!res.ok) throw new Error(`Status request failed (${res.status})`);
     const data = await res.json();
     document.getElementById('state').textContent = data.state;

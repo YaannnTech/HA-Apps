@@ -1,8 +1,10 @@
 # 0.12.1
 
 - Still uses fork release v0.3.0; fixes password login for accounts that
-  already exist and reports CLI timeouts or incomplete logins in the Web UI
-  ([#22](https://github.com/YaannnTech/HA-Apps/issues/22)).
+  already exist (including passwords that start with `-`) and reports CLI
+  timeouts or incomplete logins in the Web UI. The login pages stop
+  polling when the app no longer knows the login, for example after a
+  restart ([#22](https://github.com/YaannnTech/HA-Apps/issues/22)).
 
 # 0.12.0
 

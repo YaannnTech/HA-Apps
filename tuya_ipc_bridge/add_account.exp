@@ -7,28 +7,36 @@ set region   [lindex $argv 0]
 set email    [lindex $argv 1]
 set password [lindex $argv 2]
 
-spawn tuya-ipc-terminal auth add $region $email --password
+# Only "authentication failed" may exit 1. A Tcl error
+# exits 4, so it is not reported as wrong credentials.
+if {[catch {
+    spawn tuya-ipc-terminal auth add $region $email \
+        --password
 
-expect {
-    "(y/N)" {
-        send "y\r"
-        exp_continue
+    expect {
+        "(y/N)" {
+            send "y\r"
+            exp_continue
+        }
+        "Enter password:" {
+            send -- "$password\r"
+            exp_continue
+        }
+        "Successfully added" {
+            exit 0
+        }
+        "authentication failed" {
+            exit 1
+        }
+        eof {
+            exit 3
+        }
+        timeout {
+            puts stderr "Timed out waiting for the prompt"
+            exit 2
+        }
     }
-    "Enter password:" {
-        send "$password\r"
-        exp_continue
-    }
-    "Successfully added" {
-        exit 0
-    }
-    "authentication failed" {
-        exit 1
-    }
-    eof {
-        exit 3
-    }
-    timeout {
-        puts stderr "Timed out waiting for auth add prompt"
-        exit 2
-    }
+} err]} {
+    puts stderr "add_account.exp failed: $err"
+    exit 4
 }
