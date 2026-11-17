@@ -196,6 +196,7 @@ PAGE_HEAD = """<!DOCTYPE html>
   --border: #bac6ce; --input: #fff; --accent: #006a9b; --primary: #03a9f4;
   --primary-text: #00334a; --soft: #e9f5fb; --success: #17613c;
   --success-bg: #e3f4ea; --error: #a32121; --error-bg: #fceaea;
+  --warning: #754900; --warning-bg: #fff0c2;
   --shadow: 0 2px 12px rgba(0, 0, 0, .09);
 }
 @media (prefers-color-scheme: dark) {
@@ -204,6 +205,7 @@ PAGE_HEAD = """<!DOCTYPE html>
     --border: #637584; --input: #17212a; --accent: #70d0ff; --primary-text: #00334a;
     --soft: #153849; --success: #a4e5bc; --success-bg: #193d2d;
     --error: #ffb6b6; --error-bg: #482829; --shadow: 0 2px 12px rgba(0, 0, 0, .25);
+    --warning: #ffda80; --warning-bg: #493710;
   }
 }
 * { box-sizing: border-box; }
@@ -245,14 +247,21 @@ a, a:visited { color: var(--accent); }
   flex: 1; margin: 0; padding: 8px; border-radius: 7px; text-align: center;
   cursor: pointer; font-weight: 600;
 }
-.switch label:has(input:checked) { background: var(--card); box-shadow: var(--shadow); }
-.switch label:has(input:focus-visible) { outline: 3px solid var(--primary); }
+.switch label:has(input:checked) { background: var(--primary); color: var(--primary-text); }
+.switch label:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
 .switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 [hidden] { display: none !important; }
 .account { padding: 14px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
 .account:first-child { border-top: 0; padding-top: 4px; }
 .account:last-child { padding-bottom: 0; }
-.account strong { display: block; }
+.account-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.badge {
+  border-radius: 999px; padding: 2px 9px; font-size: .75rem; font-weight: 700;
+  color: var(--text); background: var(--background);
+}
+.badge.valid { color: var(--success); background: var(--success-bg); }
+.badge.old { color: var(--warning); background: var(--warning-bg); }
+.badge.invalid { color: var(--error); background: var(--error-bg); }
 .account-details { color: var(--muted); font-size: .9rem; }
 pre {
   white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0 0;
@@ -275,6 +284,7 @@ pre {
 .notice { border-radius: 8px; padding: 14px; margin-top: 18px; overflow-wrap: anywhere; }
 .notice.success { color: var(--success); background: var(--success-bg); }
 .notice.error { color: var(--error); background: var(--error-bg); }
+.notice #notice-title { font-weight: 700; }
 .notice p + p { margin-top: 6px; }
 #qrcode {
   display: inline-flex; align-items: center; justify-content: center; min-height: 120px;
@@ -332,10 +342,12 @@ if (header) {
     if (!line.trim()) continue;
     const user = /^User (\\d+): (.+) \\(([^()]+)\\)$/.exec(line);
     if (user && Number(user[1]) === users.length + 1) {
-      users.push({email: user[2], region: user[3], refresh: ''});
+      users.push({email: user[2], region: user[3], refresh: '', status: null});
     } else if (users.length && /^  Last refresh: .+$/.test(line) && !users[users.length - 1].refresh) {
       users[users.length - 1].refresh = line.slice('  Last refresh: '.length);
-    } else if (!(users.length && /^  (Status|User ID|Nickname): .*$/.test(line))) {
+    } else if (users.length && /^  Status: .*$/.test(line)) {
+      users[users.length - 1].status = line.slice('  Status: '.length);
+    } else if (!(users.length && /^  (User ID|Nickname): .*$/.test(line))) {
       valid = false;
       break;
     }
@@ -353,12 +365,27 @@ if (empty) {
   for (const user of users) {
     const item = document.createElement('div');
     item.className = 'account';
+    const heading = document.createElement('div');
+    heading.className = 'account-heading';
     const email = document.createElement('strong');
     email.textContent = user.email;
+    heading.append(email);
+    if (user.status) {
+      const badge = document.createElement('span');
+      const statuses = {
+        '\\u2713 Valid': ['valid', 'Valid'],
+        '\\u26a0 Old (>7 days)': ['old', 'Old'],
+        '\\u2717 Invalid': ['invalid', 'Invalid']
+      };
+      const status = Object.hasOwn(statuses, user.status) ? statuses[user.status] : ['', user.status];
+      badge.className = 'badge' + (status[0] ? ' ' + status[0] : '');
+      badge.textContent = status[1];
+      heading.append(badge);
+    }
     const details = document.createElement('div');
     details.className = 'account-details';
     details.textContent = user.region + (user.refresh ? ' - Last refresh: ' + user.refresh : '');
-    item.append(email, details);
+    item.append(heading, details);
     accounts.append(item);
   }
 }

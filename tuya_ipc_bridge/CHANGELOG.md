@@ -6,7 +6,7 @@
   polling when the app no longer knows the login, for example after a
   restart ([#22](https://github.com/YaannnTech/HA-Apps/issues/22)).
 - Redesigns the account and login pages with light and dark themes, a
-  shared login form and clearer progress
+  shared login form, session status badges and clearer progress
   ([#23](https://github.com/YaannnTech/HA-Apps/issues/23)).
 
 # 0.12.0
