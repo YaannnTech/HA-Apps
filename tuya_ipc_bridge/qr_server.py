@@ -84,6 +84,7 @@ def start_job(target, region, email, *args):
 def run_qr_job(job_id, region, email):
     """Run a QR login and signal the app after success."""
     job = JOBS[job_id]
+    job["state"] = "running"
     success = False
     try:
         proc = subprocess.Popen(
@@ -130,6 +131,7 @@ def run_qr_job(job_id, region, email):
 def run_password_job(job_id, region, email, password):
     """Run a password login and signal the app after success."""
     job = JOBS[job_id]
+    job["state"] = "running"
     try:
         proc = subprocess.run(
             ["/usr/bin/add_account.exp", region, email, password],
@@ -140,8 +142,12 @@ def run_password_job(job_id, region, email, password):
         )
     except (OSError, subprocess.SubprocessError) as exc:
         job["state"] = "error"
-        job["message"] = f"Failed to run login: {exc}"
+        job["message"] = f"Failed to run login: {str(exc).replace(password, '[REDACTED]')}"
         return
+
+    output = f"{proc.stdout or ''}{proc.stderr or ''}".replace(password, "[REDACTED]")
+    if output:
+        print(output, file=sys.stderr, end="" if output.endswith("\n") else "\n", flush=True)
 
     if proc.returncode == 0:
         job["message"] = "Account added successfully."
@@ -149,10 +155,15 @@ def run_password_job(job_id, region, email, password):
         job["state"] = "success"
     else:
         job["state"] = "error"
-        job["message"] = (
-            "Authentication failed. Check the email/password and try again. "
-            "OEM accounts (such as LittleElf and many others) cannot use password login; use QR login."
-        )
+        if proc.returncode == 1:
+            job["message"] = (
+                "Authentication failed. Check the email/password and try again. "
+                "OEM accounts (such as LittleElf and many others) cannot use password login; use QR login."
+            )
+        elif proc.returncode == 2:
+            job["message"] = "The CLI did not respond in time. Retry and check the app log."
+        else:
+            job["message"] = "Login ended without success. Check the app log."
 
 
 def get_auth_list():
@@ -229,16 +240,22 @@ def render_qr_page(base, job_id):
         + """
 let rendered = false;
 async function poll() {
-  const res = await fetch(`${base}/qr/${jobId}/status`);
-  const data = await res.json();
-  document.getElementById('state').textContent = data.state;
-  document.getElementById('message').textContent = data.message || '';
-  if (data.url && !rendered) {
-    rendered = true;
-    document.getElementById('qrcode').innerHTML =
-      `<img src="${base}/qr/${jobId}/image" width="256" height="256" alt="QR code">`;
-  }
-  if (data.state !== 'success' && data.state !== 'error') {
+  try {
+    const res = await fetch(`${base}/qr/${jobId}/status`);
+    if (!res.ok) throw new Error(`Status request failed (${res.status})`);
+    const data = await res.json();
+    document.getElementById('state').textContent = data.state;
+    document.getElementById('message').textContent = data.message || '';
+    if (data.url && !rendered) {
+      rendered = true;
+      document.getElementById('qrcode').innerHTML =
+        `<img src="${base}/qr/${jobId}/image" width="256" height="256" alt="QR code">`;
+    }
+    if (data.state !== 'success' && data.state !== 'error') {
+      setTimeout(poll, 1500);
+    }
+  } catch (error) {
+    document.getElementById('message').textContent = 'Status check failed. Retrying...';
     setTimeout(poll, 1500);
   }
 }
@@ -260,11 +277,17 @@ def render_password_page(base, job_id):
         + f'const jobId = "{job_id}"; const base = "{base}";'
         + """
 async function poll() {
-  const res = await fetch(`${base}/password/${jobId}/status`);
-  const data = await res.json();
-  document.getElementById('state').textContent = data.state;
-  document.getElementById('message').textContent = data.message || '';
-  if (data.state !== 'success' && data.state !== 'error') {
+  try {
+    const res = await fetch(`${base}/password/${jobId}/status`);
+    if (!res.ok) throw new Error(`Status request failed (${res.status})`);
+    const data = await res.json();
+    document.getElementById('state').textContent = data.state;
+    document.getElementById('message').textContent = data.message || '';
+    if (data.state !== 'success' && data.state !== 'error') {
+      setTimeout(poll, 1500);
+    }
+  } catch (error) {
+    document.getElementById('message').textContent = 'Status check failed. Retrying...';
     setTimeout(poll, 1500);
   }
 }

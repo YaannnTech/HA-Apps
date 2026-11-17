@@ -10,9 +10,6 @@ set password [lindex $argv 2]
 spawn tuya-ipc-terminal auth add $region $email --password
 
 expect {
-    -re "already exists.*\r?\n" {
-        exp_continue
-    }
     "(y/N)" {
         send "y\r"
         exp_continue
@@ -28,10 +25,10 @@ expect {
         exit 1
     }
     eof {
-        exit 0
+        exit 3
     }
     timeout {
         puts stderr "Timed out waiting for auth add prompt"
-        exit 1
+        exit 2
     }
 }

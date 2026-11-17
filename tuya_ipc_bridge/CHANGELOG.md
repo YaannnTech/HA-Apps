@@ -1,3 +1,9 @@
+# 0.12.1
+
+- Still uses fork release v0.3.0; fixes password login for accounts that
+  already exist and reports CLI timeouts or incomplete logins in the Web UI
+  ([#22](https://github.com/YaannnTech/HA-Apps/issues/22)).
+
 # 0.12.0
 
 - Uses fork release v0.3.0 (commit `f2d476b`) as a prebuilt binary from the
