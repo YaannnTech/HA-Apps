@@ -11,23 +11,25 @@ Wraps [tuya-ipc-terminal](https://github.com/seydx/tuya-ipc-terminal) by seydx (
 ## Adding Tuya accounts
 
 Open this app's **Web UI** (Ingress panel, from its Info page). It has forms for both
-QR-code login and email/password login, plus a live list of currently authenticated accounts.
+QR-code login and email/password login, plus a live list under **Authenticated accounts**.
 
 ## Adding an account via QR code
 
-In the Web UI, under **Add account via QR code**:
+In the Web UI, under **Add or renew account**, select **QR code**:
 
-1. Select the account's region and enter its email. The region is the Tuya data center of the account, not where you live: most accounts in the Americas are in **us-west** (West America), and Brazilian accounts use **brazil**. If the QR login never completes after scanning, try another region.
+1. Select the account's **Region** and enter its **Email**. The region is the Tuya data center of the account, not where you live: Most accounts in the Americas are in **us-west** (West America), and Brazilian accounts use **brazil**. If the QR login never completes after scanning, try another region.
 2. Click **Start QR login** — a real, scannable QR code appears in the page (rendered
    by the app itself; the login URL is never sent to a third-party QR service).
 3. Scan it with the Tuya Smart / Smart Life app, or with the OEM app the account belongs to (such as LittleElf). The page polls automatically and shows
-   *success* or *error* once the login completes.
+   **Account added** or **Login failed** once the login completes. Click **Back to accounts** to return to the list.
 
 > **Important**: this QR code is not a normal URL — it only works with the Tuya / Smart Life (or variants) app's own built-in QR scanner, **not** your phone's regular Camera app (which won't recognize it at all). In the app, use the scan icon on the **Me**/**Profile** tab (the same one used for "log in via QR code" on Tuya's web portal), then point it at the screen. The code also expires after about a minute, so scan it promptly after it appears.
 
 ## Adding an account via email/password
 
 Password login works for Tuya Smart and Smart Life accounts. It does not work for OEM accounts (such as LittleElf and many others): they fail with "wrong account or password" even with the correct password. Use the QR login above for those and scan the code with the account's own app.
+
+In the Web UI, under **Add or renew account**, select **Password**, choose the **Region**, enter the **Email** and **Password**, and click **Log in**. Click **Back to accounts** to return to the list.
 
 ## Notifications
 

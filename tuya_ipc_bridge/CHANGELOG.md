@@ -1,3 +1,17 @@
+# 0.13.0
+
+- Uses fork release v0.3.1 (commit `0bd27b4`), which fixes corrupted
+  go2rtc live previews of `/hd-lan` streams, for example in Frigate
+  ([YaannnTech/tuya-ipc-terminal#38](https://github.com/YaannnTech/tuya-ipc-terminal/pull/38)).
+- Fixes password login for accounts that already exist (including
+  passwords that start with `-`) and reports CLI timeouts or incomplete
+  logins in the Web UI. The login pages stop polling when the app no
+  longer knows the login, for example after a restart
+  ([#22](https://github.com/YaannnTech/HA-Apps/issues/22)).
+- Redesigns the account and login pages with light and dark themes, a
+  shared login form, session status badges and clearer progress
+  ([#23](https://github.com/YaannnTech/HA-Apps/issues/23)).
+
 # 0.12.0
 
 - Uses fork release v0.3.0 (commit `f2d476b`) as a prebuilt binary from the

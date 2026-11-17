@@ -84,6 +84,7 @@ def start_job(target, region, email, *args):
 def run_qr_job(job_id, region, email):
     """Run a QR login and signal the app after success."""
     job = JOBS[job_id]
+    job["state"] = "running"
     success = False
     try:
         proc = subprocess.Popen(
@@ -95,8 +96,8 @@ def run_qr_job(job_id, region, email):
             bufsize=1,
         )
     except OSError as exc:
-        job["state"] = "error"
         job["message"] = f"Failed to start CLI: {exc}"
+        job["state"] = "error"
         return
 
     for raw_line in iter(proc.stdout.readline, ""):
@@ -115,21 +116,22 @@ def run_qr_job(job_id, region, email):
             success = True
             job["message"] = line
         elif "authentication failed" in line or "error polling" in line.lower():
-            job["state"] = "error"
             job["message"] = line
+            job["state"] = "error"
 
     proc.wait()
     if success and job["state"] != "error":
         signal_login(job)
         job["state"] = "success"
     elif job["state"] != "error":
-        job["state"] = "error"
         job["message"] = "Process exited before login completed."
+        job["state"] = "error"
 
 
 def run_password_job(job_id, region, email, password):
     """Run a password login and signal the app after success."""
     job = JOBS[job_id]
+    job["state"] = "running"
     try:
         proc = subprocess.run(
             ["/usr/bin/add_account.exp", region, email, password],
@@ -138,21 +140,35 @@ def run_password_job(job_id, region, email, password):
             text=True,
             timeout=90,
         )
-    except (OSError, subprocess.SubprocessError) as exc:
+    except subprocess.TimeoutExpired:
+        # Never format the exception: its text contains the command line with the password.
+        job["message"] = "The CLI did not respond in time. Retry and check the app log."
         job["state"] = "error"
-        job["message"] = f"Failed to run login: {exc}"
         return
+    except OSError as exc:
+        job["message"] = f"Failed to run login. {exc.strerror or ''}".strip()
+        job["state"] = "error"
+        return
+
+    output = f"{proc.stdout or ''}{proc.stderr or ''}".replace(password, "[REDACTED]")
+    if output:
+        print(output, file=sys.stderr, end="" if output.endswith("\n") else "\n", flush=True)
 
     if proc.returncode == 0:
         job["message"] = "Account added successfully."
         signal_login(job)
         job["state"] = "success"
     else:
+        if proc.returncode == 1:
+            job["message"] = (
+                "Authentication failed. Check the email/password and try again. "
+                "OEM accounts (such as LittleElf and many others) cannot use password login; use QR login."
+            )
+        elif proc.returncode == 2:
+            job["message"] = "The CLI did not respond in time. Retry and check the app log."
+        else:
+            job["message"] = "Login ended without success. Check the app log."
         job["state"] = "error"
-        job["message"] = (
-            "Authentication failed. Check the email/password and try again. "
-            "OEM accounts (such as LittleElf and many others) cannot use password login; use QR login."
-        )
 
 
 def get_auth_list():
@@ -170,19 +186,121 @@ def get_auth_list():
 
 
 PAGE_HEAD = """<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Tuya IPC Bridge</title>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuya IPC Bridge</title>
 <style>
-body { font-family: sans-serif; margin: 2em; background:#111; color:#eee; }
-pre { background:#000; color:#0f0; padding:1em; overflow-x:auto; }
-label { display:block; margin-top:0.75em; }
-select, input { padding:0.4em; width:100%; max-width:320px; }
-button { margin-top:1em; padding:0.6em 1.2em; }
-#qrcode { margin-top:1em; background:#fff; padding:16px; display:inline-block; border-radius:4px; }
-#qrcode img { display:block; }
-.state { font-weight:bold; }
-</style></head><body>
+:root {
+  color-scheme: light dark;
+  --background: #f3f5f7; --card: #fff; --text: #212b36; --muted: #526371;
+  --border: #bac6ce; --input: #fff; --accent: #006a9b; --primary: #03a9f4;
+  --primary-text: #00334a; --soft: #e9f5fb; --success: #17613c;
+  --success-bg: #e3f4ea; --error: #a32121; --error-bg: #fceaea;
+  --warning: #754900; --warning-bg: #fff0c2; --focus: #0277bd;
+  --shadow: 0 2px 12px rgba(0, 0, 0, .09);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111820; --card: #202b34; --text: #edf3f7; --muted: #b7c5cf;
+    --border: #637584; --input: #17212a; --accent: #70d0ff; --primary-text: #00334a;
+    --soft: #153849; --success: #a4e5bc; --success-bg: #193d2d;
+    --error: #ffb6b6; --error-bg: #482829; --shadow: 0 2px 12px rgba(0, 0, 0, .25);
+    --warning: #ffda80; --warning-bg: #493710; --focus: #70d0ff;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--background); color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+main { width: min(100% - 32px, 680px); margin: 36px auto 48px; }
+h1 { font-size: 1.7rem; line-height: 1.2; margin: 0 0 8px; }
+h2 { font-size: 1.2rem; line-height: 1.3; margin: 0 0 8px; }
+p { margin: 0; }
+.subtitle, .hint, .empty { color: var(--muted); }
+.subtitle { margin-bottom: 24px; }
+.card {
+  background: var(--card); border-radius: 14px; padding: 24px;
+  box-shadow: var(--shadow); margin-bottom: 16px;
+}
+.hint { font-size: .9rem; margin: 8px 0 18px; }
+label { display: block; font-weight: 600; margin: 16px 0 6px; }
+input, select, button { font: inherit; }
+input, select {
+  width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: 8px;
+  padding: 11px 12px; color: var(--text); background: var(--input);
+}
+input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 3px solid var(--focus); outline-offset: 2px;
+}
+button, .button {
+  display: inline-block; border: 0; border-radius: 8px; padding: 11px 18px;
+  font-weight: 700; text-align: center; cursor: pointer; text-decoration: none;
+}
+.primary { background: var(--primary); color: var(--primary-text); }
+.primary:visited { color: var(--primary-text); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+a, a:visited { color: var(--accent); }
+.submit { width: 100%; margin-top: 24px; }
+form:not(.enhanced) .submit + .submit { margin-top: 12px; }
+.switch { display: none; padding: 4px; border-radius: 10px; background: var(--background); }
+.enhanced .switch { display: flex; }
+.switch label {
+  flex: 1; margin: 0; padding: 8px; border-radius: 7px; text-align: center;
+  cursor: pointer; font-weight: 600;
+}
+.switch label:has(input:checked) { background: var(--primary); color: var(--primary-text); }
+.switch label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+.switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+[hidden] { display: none !important; }
+.account { padding: 14px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
+.account:first-child { border-top: 0; padding-top: 4px; }
+.account:last-child { padding-bottom: 0; }
+.account-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.badge {
+  border-radius: 999px; padding: 2px 9px; font-size: .75rem; font-weight: 700;
+  color: var(--text); background: var(--background);
+}
+.badge.valid { color: var(--success); background: var(--success-bg); }
+.badge.old { color: var(--warning); background: var(--warning-bg); }
+.badge.invalid { color: var(--error); background: var(--error-bg); }
+.account-details { color: var(--muted); font-size: .9rem; }
+pre {
+  white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0 0;
+  background: var(--background); border-radius: 8px; padding: 14px;
+  color: var(--text); font-size: .85rem;
+}
+.progress { text-align: center; }
+.progress h1 { margin-bottom: 8px; }
+.progress .hint { margin-bottom: 20px; }
+.status {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-weight: 700; margin: 20px 0 0;
+}
+.spinner {
+  width: 20px; height: 20px; flex: none; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2s; } }
+.notice { border-radius: 8px; padding: 14px; margin-top: 18px; overflow-wrap: anywhere; }
+.notice.success { color: var(--success); background: var(--success-bg); }
+.notice.error { color: var(--error); background: var(--error-bg); }
+.notice #notice-title { font-weight: 700; }
+.notice p + p { margin-top: 6px; }
+#qrcode {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 120px;
+  max-width: 100%; padding: 16px; border-radius: 10px; background: #fff; color: #38444c;
+}
+#qrcode img { display: block; width: min(256px, 100%); height: auto; }
+.back { margin-top: 24px; width: 100%; }
+@media (max-width: 420px) {
+  main { margin-top: 24px; }
+  .card { padding: 20px; }
+}
+</style></head><body><main>
 """
-PAGE_TAIL = "</body></html>"
+PAGE_TAIL = "</main></body></html>"
 
 
 def render_index(base):
@@ -193,86 +311,181 @@ def render_index(base):
     accounts = html.escape(get_auth_list())
     return (
         PAGE_HEAD
-        + "<h1>Tuya IPC Bridge</h1>"
-        + "<h2>Authenticated accounts</h2>"
-        + f"<pre>{accounts}</pre>"
-        + "<h2>Add account via QR code</h2>"
-        + "<p>Scan the code with the Smart Life / Tuya Smart app or with the OEM app the account belongs to.</p>"
-        + f'<form method="POST" action="{base}/qr/start">'
-        + f'<label>Region <select name="region">{options}</select></label>'
-        + '<label>Email <input name="email" type="email" required></label>'
-        + '<button type="submit">Start QR login</button>'
-        + "</form>"
-        + "<h2>Add account via email/password</h2>"
-        + "<p>Password login works for Tuya Smart and Smart Life accounts, not for OEM accounts "
-        + "(such as LittleElf and many others); those use the QR login above and scan the code with their own app.</p>"
-        + f'<form method="POST" action="{base}/password/start">'
-        + f'<label>Region <select name="region">{options}</select></label>'
-        + '<label>Email <input name="email" type="email" required></label>'
-        + '<label>Password <input name="password" type="password" required></label>'
-        + '<button type="submit">Log in</button>'
-        + "</form>"
+        + '<h1>Tuya IPC Bridge</h1><p class="subtitle">Manage your camera accounts</p>'
+        + '<section class="card" aria-labelledby="accounts-title">'
+        + '<h2 id="accounts-title">Authenticated accounts</h2>'
+        + f'<div id="accounts"><pre>{accounts}</pre></div></section>'
+        + '<section class="card" aria-labelledby="add-title">'
+        + '<h2 id="add-title">Add or renew account</h2>'
+        + '<p class="hint">Choose how to sign in to your account.</p>'
+        + f'<form id="login-form" method="POST" action="{base}/qr/start">'
+        + '<div class="switch" role="group" aria-label="Login method">'
+        + '<label><input type="radio" name="method" value="qr" checked>QR code</label>'
+        + '<label><input type="radio" name="method" value="password">Password</label></div>'
+        + '<p class="hint">OEM accounts, such as LittleElf, use QR login with their own app.</p>'
+        + f'<label for="region">Region</label><select id="region" name="region">{options}</select>'
+        + '<label for="email">Email</label><input id="email" name="email" type="email" '
+        + 'autocomplete="username" required>'
+        + '<div id="password-field"><label for="password">Password</label>'
+        + '<input id="password" name="password" type="password" autocomplete="current-password"></div>'
+        + f'<button class="primary submit" type="submit" id="submit" formaction="{base}/qr/start">'
+        + 'Start QR login</button>'
+        + f'<button class="primary submit" type="submit" id="password-submit" formaction="{base}/password/start">'
+        + 'Log in</button></form></section>'
+        + """
+<script>
+const accounts = document.getElementById('accounts');
+const raw = accounts.querySelector('pre').textContent.trim().replace(/\\r\\n/g, '\\n');
+const lines = raw.split(/\\r?\\n/);
+const empty = lines.some(line => line.trim() === 'No authenticated users found.');
+const header = /^Found (\\d+) authenticated user\\(s\\):$/.exec(lines[0]);
+const users = [];
+let valid = !!header;
+if (header) {
+  for (const line of lines.slice(1)) {
+    if (!line.trim()) continue;
+    const user = /^User (\\d+): (.+) \\(([^()]+)\\)$/.exec(line);
+    if (user && Number(user[1]) === users.length + 1) {
+      users.push({email: user[2], region: user[3], refresh: '', status: null});
+    } else if (users.length && /^  Last refresh: .+$/.test(line) && !users[users.length - 1].refresh) {
+      users[users.length - 1].refresh = line.slice('  Last refresh: '.length);
+    } else if (users.length && /^  Status: .*$/.test(line)) {
+      users[users.length - 1].status = line.slice('  Status: '.length);
+    } else if (!(users.length && /^  (User ID|Nickname): .*$/.test(line))) {
+      valid = false;
+      break;
+    }
+  }
+  valid = valid && users.length === Number(header[1]) && users.length > 0;
+}
+if (empty) {
+  accounts.replaceChildren();
+  const message = document.createElement('p');
+  message.className = 'empty';
+  message.textContent = 'No accounts yet. Add an account to get started.';
+  accounts.append(message);
+} else if (valid) {
+  accounts.replaceChildren();
+  for (const user of users) {
+    const item = document.createElement('div');
+    item.className = 'account';
+    const heading = document.createElement('div');
+    heading.className = 'account-heading';
+    const email = document.createElement('strong');
+    email.textContent = user.email;
+    heading.append(email);
+    if (user.status) {
+      const badge = document.createElement('span');
+      const statuses = {
+        '\\u2713 Valid': ['valid', 'Valid'],
+        '\\u26a0 Old (>7 days)': ['old', 'Old'],
+        '\\u2717 Invalid': ['invalid', 'Invalid']
+      };
+      const status = Object.hasOwn(statuses, user.status) ? statuses[user.status] : ['', user.status];
+      badge.className = 'badge' + (status[0] ? ' ' + status[0] : '');
+      badge.textContent = status[1];
+      heading.append(badge);
+    }
+    const details = document.createElement('div');
+    details.className = 'account-details';
+    details.textContent = user.region + (user.refresh ? ' - Last refresh: ' + user.refresh : '');
+    item.append(heading, details);
+    accounts.append(item);
+  }
+}
+const form = document.getElementById('login-form');
+const password = document.getElementById('password');
+function setMethod(usePassword) {
+  document.getElementById('password-field').hidden = !usePassword;
+  password.disabled = !usePassword;
+  password.required = usePassword;
+  const submit = document.getElementById('submit');
+  const passwordSubmit = document.getElementById('password-submit');
+  submit.hidden = usePassword;
+  passwordSubmit.hidden = !usePassword;
+  form.action = usePassword ? passwordSubmit.formAction : submit.formAction;
+  form.append(usePassword ? passwordSubmit : submit, usePassword ? submit : passwordSubmit);
+}
+form.addEventListener('change', (event) => {
+  if (event.target.name !== 'method') return;
+  setMethod(event.target.value === 'password');
+});
+setMethod(form.querySelector('input[name="method"]:checked').value === 'password');
+form.classList.add('enhanced');
+</script>
+"""
+        + PAGE_TAIL
+    )
+
+
+def render_progress_page(base, job_id, qr):
+    return (
+        PAGE_HEAD
+        + '<section class="card progress">'
+        + ("<h1>QR code login</h1>"
+           '<p class="hint">Scan with Tuya Smart, Smart Life, or your OEM app.</p>'
+           '<div id="qrcode">Waiting for QR code...</div>' if qr else "<h1>Password login</h1>")
+        + '<div aria-live="polite" aria-atomic="true"><div class="status" id="status">'
+        + '<span class="spinner" id="spinner" aria-hidden="true"></span>'
+        + '<span id="state">Logging in...</span></div>'
+        + '<div class="notice" id="notice" hidden><p id="notice-title"></p><p id="message"></p></div></div>'
+        + f'<a class="button primary back" href="{base}/">Back to accounts</a></section>'
+        + "<script>"
+        + f'const jobId = "{job_id}"; const base = "{base}"; const method = "{"qr" if qr else "password"}";'
+        + """
+let rendered = false;
+const labels = {
+  starting: 'Logging in...', running: 'Logging in...',
+  waiting_for_scan: 'Scan the code with the app', success: 'Account added', error: 'Login failed'
+};
+function update(state, message) {
+  const final = state === 'success' || state === 'error';
+  const notice = document.getElementById('notice');
+  document.getElementById('message').textContent = message || '';
+  document.getElementById('notice-title').textContent = final ? labels[state] : '';
+  notice.className = 'notice' + (final ? ' ' + state : '');
+  notice.hidden = !final && !message;
+  document.getElementById('spinner').hidden = final;
+  document.getElementById('state').textContent = final ? '' : (labels[state] || 'Logging in...');
+  document.getElementById('status').hidden = final;
+}
+async function poll() {
+  try {
+    const res = await fetch(`${base}/${method}/${jobId}/status`);
+    if (res.status === 404) {
+      update('error', 'This login is no longer known (the app may have restarted). Go back and start again.');
+      return;
+    }
+    if (!res.ok) throw new Error(`Status request failed (${res.status})`);
+    const data = await res.json();
+    update(data.state, data.message);
+    if (method === 'qr' && data.url && !rendered) {
+      rendered = true;
+      document.getElementById('qrcode').innerHTML =
+        `<img src="${base}/qr/${jobId}/image" width="256" height="256" alt="QR code">`;
+    }
+    if (data.state !== 'success' && data.state !== 'error') {
+      setTimeout(poll, 1500);
+    }
+  } catch (error) {
+    document.getElementById('message').textContent = 'Status check failed. Retrying...';
+    document.getElementById('notice').hidden = false;
+    setTimeout(poll, 1500);
+  }
+}
+poll();
+"""
+        + "</script>"
         + PAGE_TAIL
     )
 
 
 def render_qr_page(base, job_id):
-    return (
-        PAGE_HEAD
-        + "<h1>Scan with the Tuya Smart / Smart Life app</h1>"
-        + '<div id="qrcode">Waiting for QR code&hellip;</div>'
-        + '<p class="state" id="state">starting</p>'
-        + '<p id="message"></p>'
-        + f'<p><a href="{base}/">&larr; Back</a></p>'
-        + "<script>"
-        + f'const jobId = "{job_id}"; const base = "{base}";'
-        + """
-let rendered = false;
-async function poll() {
-  const res = await fetch(`${base}/qr/${jobId}/status`);
-  const data = await res.json();
-  document.getElementById('state').textContent = data.state;
-  document.getElementById('message').textContent = data.message || '';
-  if (data.url && !rendered) {
-    rendered = true;
-    document.getElementById('qrcode').innerHTML =
-      `<img src="${base}/qr/${jobId}/image" width="256" height="256" alt="QR code">`;
-  }
-  if (data.state !== 'success' && data.state !== 'error') {
-    setTimeout(poll, 1500);
-  }
-}
-poll();
-"""
-        + "</script>"
-        + PAGE_TAIL
-    )
+    return render_progress_page(base, job_id, True)
 
 
 def render_password_page(base, job_id):
-    return (
-        PAGE_HEAD
-        + "<h1>Logging in&hellip;</h1>"
-        + '<p class="state" id="state">starting</p>'
-        + '<p id="message"></p>'
-        + f'<p><a href="{base}/">&larr; Back</a></p>'
-        + "<script>"
-        + f'const jobId = "{job_id}"; const base = "{base}";'
-        + """
-async function poll() {
-  const res = await fetch(`${base}/password/${jobId}/status`);
-  const data = await res.json();
-  document.getElementById('state').textContent = data.state;
-  document.getElementById('message').textContent = data.message || '';
-  if (data.state !== 'success' && data.state !== 'error') {
-    setTimeout(poll, 1500);
-  }
-}
-poll();
-"""
-        + "</script>"
-        + PAGE_TAIL
-    )
+    return render_progress_page(base, job_id, False)
 
 
 class Handler(BaseHTTPRequestHandler):
