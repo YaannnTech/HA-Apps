@@ -1,3 +1,15 @@
+# 0.14.0
+
+- Uses fork release v0.4.0 (commit `5dbc6f9`), which adds `--yes` and
+  `--password-stdin` to `auth add` and distinct exit codes
+  ([YaannnTech/tuya-ipc-terminal#39](https://github.com/YaannnTech/tuya-ipc-terminal/issues/39)).
+- Password logins call the CLI directly with `--password-stdin` and
+  `--yes`. The password no longer appears in the process list, where
+  `add_account.exp` passed it as an argument, and the `expect` package
+  is gone from the image.
+- An invalid login input, such as a malformed email, now has its own
+  message in the Web UI.
+
 # 0.13.1
 
 - Update the app base image to 21.0.12 with the OpenSSL 3.5.9-r1 update.

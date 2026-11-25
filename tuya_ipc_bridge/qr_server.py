@@ -134,14 +134,15 @@ def run_password_job(job_id, region, email, password):
     job["state"] = "running"
     try:
         proc = subprocess.run(
-            ["/usr/bin/add_account.exp", region, email, password],
+            ["tuya-ipc-terminal", "auth", "add", "--password", "--password-stdin", "--yes", region, email],
+            input=password + "\n",
             capture_output=True,
             check=False,
             text=True,
             timeout=90,
         )
     except subprocess.TimeoutExpired:
-        # Never format the exception: its text contains the command line with the password.
+        # The password goes in on stdin, not on the command line; still keep the message generic.
         job["message"] = "The CLI did not respond in time. Retry and check the app log."
         job["state"] = "error"
         return
@@ -159,13 +160,13 @@ def run_password_job(job_id, region, email, password):
         signal_login(job)
         job["state"] = "success"
     else:
-        if proc.returncode == 1:
+        if proc.returncode == 3:
             job["message"] = (
                 "Authentication failed. Check the email/password and try again. "
                 "OEM accounts (such as LittleElf and many others) cannot use password login; use QR login."
             )
         elif proc.returncode == 2:
-            job["message"] = "The CLI did not respond in time. Retry and check the app log."
+            job["message"] = "The CLI rejected the login input, for example an invalid email. Check the app log."
         else:
             job["message"] = "Login ended without success. Check the app log."
         job["state"] = "error"
