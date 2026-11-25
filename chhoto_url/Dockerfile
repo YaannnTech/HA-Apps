@@ -1,4 +1,4 @@
-FROM sintan1729/chhoto-url:7.11.4-alpine
+FROM sintan1729/chhoto-url:7.11.9-alpine
 
 ARG BUILD_VERSION
 ARG BUILD_ARCH
@@ -23,8 +23,8 @@ RUN sed -i 's#s=Promise.reject(new Error("Unable to get access to clipboard."))#
 	&& grep -q 'c=document.execCommand("copy")' /app/frontend/base/static/script.js
 
 # script.js is served without Cache-Control, so browsers keep stale copies; version the URL.
-RUN sed -i "s#src=static/script.js #src=static/script.js?v=${BUILD_VERSION} #" /app/frontend/base/index.html \
-	&& grep -q "src=static/script.js?v=${BUILD_VERSION} " /app/frontend/base/index.html
+RUN sed -i "s#src=\"static/script.js?v=[^\"]*\"#src=\"static/script.js?v=${BUILD_VERSION}\"#" /app/frontend/base/index.html \
+	&& grep -q "src=\"static/script.js?v=${BUILD_VERSION}\"" /app/frontend/base/index.html
 
 COPY rootfs /
 
