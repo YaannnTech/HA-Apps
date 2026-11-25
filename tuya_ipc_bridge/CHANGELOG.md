@@ -1,3 +1,8 @@
+# 0.13.1
+
+- Update the app base image to 21.0.12 with the OpenSSL 3.5.9-r1 update.
+  Nothing else changes in the app.
+
 # 0.13.0
 
 - Uses fork release v0.3.1 (commit `0bd27b4`), which fixes corrupted
