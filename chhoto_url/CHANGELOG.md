@@ -1,3 +1,15 @@
+# 7.11.9.1
+
+- Update Chhoto URL to upstream release 7.11.9.
+- Print a clearer error when the port bind fails.
+- Ignore an empty API key as a security fix; the app already passes no API key when the option is empty.
+- Lower database concurrency when WAL is disabled.
+- Prevent scheduled backups from being duplicated after a restart.
+- Run a WAL checkpoint after database start and update logging behavior.
+- Add custom site title configuration upstream, but the app does not expose it as an app option yet.
+
+See the [upstream releases](https://github.com/SinTan1729/chhoto-url/releases) for details.
+
 # 7.11.4.1
 
 - Update Chhoto URL to upstream release 7.11.4.
