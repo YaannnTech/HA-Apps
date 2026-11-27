@@ -3,7 +3,7 @@ ARG BUILD_FROM
 
 # Prebuilt tuya-ipc-terminal from the YaannnTech fork's multi-arch image,
 # pinned by digest so the same app version always ships the same binary
-ARG TUYA_IPC_TERMINAL_IMAGE=ghcr.io/yaannntech/tuya-ipc-terminal:0.4.0@sha256:a85d9084c009d4387e4e0a71f21b50e24f2ec5ccbc88c1d2887535f868f7ab49
+ARG TUYA_IPC_TERMINAL_IMAGE=ghcr.io/yaannntech/tuya-ipc-terminal:0.5.0@sha256:b24af3bfce5bab24d5b1b5a1b9222ff292d94d070d3c54db8b4c5a38eef4840b
 FROM ${TUYA_IPC_TERMINAL_IMAGE} AS tuya
 
 # Final stage: Home Assistant app base

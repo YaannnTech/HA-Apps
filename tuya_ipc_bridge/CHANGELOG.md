@@ -1,3 +1,13 @@
+# 0.15.0
+
+- Uses fork release v0.5.0 (commit `2811643`). It checks a process
+  identity in the PID files that `rtsp start`, `rtsp stop` and
+  `rtsp status` use
+  ([YaannnTech/tuya-ipc-terminal#43](https://github.com/YaannnTech/tuya-ipc-terminal/issues/43))
+  and adds Windows and macOS binaries. The app runs `rtsp start`, which
+  also uses the identity check when it looks for an existing server. The
+  app stops the server itself through the PID of the started process.
+
 # 0.14.1
 
 - Update the app base image to 21.1.0; its only change is bashio 0.20.0.

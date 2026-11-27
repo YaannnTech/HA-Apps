@@ -2,7 +2,7 @@ build_from:
   aarch64: "ghcr.io/hassio-addons/base/aarch64:21.1.0"
   amd64: "ghcr.io/hassio-addons/base/amd64:21.1.0"
 args:
-  TUYA_IPC_TERMINAL_IMAGE: "ghcr.io/yaannntech/tuya-ipc-terminal:0.4.0@sha256:a85d9084c009d4387e4e0a71f21b50e24f2ec5ccbc88c1d2887535f868f7ab49"
+  TUYA_IPC_TERMINAL_IMAGE: "ghcr.io/yaannntech/tuya-ipc-terminal:0.5.0@sha256:b24af3bfce5bab24d5b1b5a1b9222ff292d94d070d3c54db8b4c5a38eef4840b"
 labels:
   org.opencontainers.image.source: "https://github.com/YaannnTech/tuya-ipc-terminal"
   org.opencontainers.image.description: "Home Assistant app wrapping tuya-ipc-terminal"
