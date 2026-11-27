@@ -1,3 +1,11 @@
+# 7.11.10.1
+
+- Update Chhoto URL to upstream release 7.11.10.
+- On exit, upstream now runs a WAL checkpoint if needed, so recent writes land in the database file on shutdown.
+- Upstream tuned database cleaning and optimization.
+
+See the [upstream releases](https://github.com/SinTan1729/chhoto-url/releases) for details.
+
 # 7.11.9.1
 
 - Update Chhoto URL to upstream release 7.11.9.
