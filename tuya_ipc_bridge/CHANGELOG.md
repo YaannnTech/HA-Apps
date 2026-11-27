@@ -1,3 +1,10 @@
+# 0.14.1
+
+- Update the app base image to 21.1.0; its only change is bashio 0.20.0.
+  Bashio 0.20.0 calls the Supervisor over its Unix socket when
+  `SUPERVISOR_SOCKET` is set, identifies itself in HTTP requests and fixes
+  a race condition in its cache library. The fork binary stays at v0.4.0.
+
 # 0.14.0
 
 - Uses fork release v0.4.0 (commit `5dbc6f9`), which adds `--yes` and
